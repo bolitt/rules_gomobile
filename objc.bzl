@@ -1,5 +1,5 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "GoLibrary", "GoSource", "go_context")
-load("@co_znly_rules_gomobile//:common.bzl", "pkg_short", "genpath")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_path", "GoLibrary", "GoSource", "GoPath", "go_context")
+load("@co_znly_rules_gomobile//:common.bzl", "pkg_short", "genpath", "run_ex")
 
 IOS_CONSTRAINTS = {
     "ios_x86_64": ["darwin", "amd64"],
@@ -36,10 +36,7 @@ def _gen_filenames(library):
         main_h = pkg_short_ + ".h",
     )
 
-def gobind_objc(ctx, go, libraries, srcs):
-    env = {
-        "GOPATH": "/Users/steeve/go",
-    }
+def gobind_objc(ctx, go, env, libraries, srcs):
     objc_hdrs = []
     objc_files = []
     go_files = []
@@ -57,7 +54,8 @@ def gobind_objc(ctx, go, libraries, srcs):
         objc_files.append(go.actions.declare_file(genpath(ctx, "objc", filename)))
     for filename in SUPPORT_FILES_GO:
         go_files.append(go.actions.declare_file(genpath(ctx, "objc", filename)))
-    ctx.actions.run(
+
+    run_ex(ctx,
         inputs = srcs,
         outputs = objc_hdrs + objc_files,
         executable = ctx.executable._gobind,
@@ -67,6 +65,7 @@ def gobind_objc(ctx, go, libraries, srcs):
             "-outdir", "{}/{}".format(ctx.genfiles_dir.path, genpath(ctx, "objc")),
         ] + packages,
     )
+
     return struct(
         objc_hdrs = depset(objc_hdrs),
         objc_files = depset(objc_files),

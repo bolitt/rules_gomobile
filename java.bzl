@@ -1,5 +1,5 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "GoLibrary", "GoSource", "go_context")
-load("@co_znly_rules_gomobile//:common.bzl", "pkg_short", "genpath")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_path", "GoLibrary", "GoSource", "GoPath", "go_context")
+load("@co_znly_rules_gomobile//:common.bzl", "pkg_short", "genpath", "run_ex")
 
 SUPPORT_FILES_JAVA = [
     "go/error.java",
@@ -30,10 +30,7 @@ def _gen_filenames(library):
     )
 
 
-def gobind_java(ctx, go, libraries, srcs):
-    env = {
-        "GOPATH": "/Users/steeve/go",
-    }
+def gobind_java(ctx, go, env, libraries, srcs):
     java_files = []
     cc_files = []
     go_files = []
@@ -48,7 +45,7 @@ def gobind_java(ctx, go, libraries, srcs):
         cc_files.append(go.actions.declare_file(genpath(ctx, "java", filename)))
     for filename in SUPPORT_FILES_GO:
         go_files.append(go.actions.declare_file(genpath(ctx, "java", filename)))
-    ctx.actions.run(
+    run_ex(ctx,
         inputs = srcs,
         outputs = java_files + cc_files + go_files,
         executable = ctx.executable._gobind,

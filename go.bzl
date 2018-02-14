@@ -1,5 +1,5 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "GoLibrary", "GoSource", "go_context")
-load("@co_znly_rules_gomobile//:common.bzl", "pkg_short", "genpath")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_path", "GoLibrary", "GoSource", "GoPath", "go_context")
+load("@co_znly_rules_gomobile//:common.bzl", "pkg_short", "genpath", "run_ex")
 
 SUPPORT_FILES_GO = [
     "go_main.go",
@@ -26,9 +26,10 @@ def _gen_filenames(library):
         main_go = "go_" + pkg_short_ + "main.go",
     )
 
-def gobind_go(ctx, go, libraries, srcs):
+def gobind_go(ctx, go, env, libraries, srcs):
+    gopath = ctx.attr.go_path[GoPath]
     env = {
-        "GOPATH": "/Users/steeve/go",
+        "GOPATH": "$(pwd)/" + ctx.bin_dir.path + "/" + ctx.attr.go_path[GoPath].gopath,
     }
     objc_hdrs = []
     objc_files = []
@@ -44,7 +45,7 @@ def gobind_go(ctx, go, libraries, srcs):
     main_go = go.actions.declare_file(genpath(ctx, "go", "main.go"))
     go.actions.write(main_go, MAIN_GO)
 
-    ctx.actions.run(
+    run_ex(ctx,
         inputs = srcs,
         outputs = go_files,
         executable = ctx.executable._gobind,
@@ -54,6 +55,7 @@ def gobind_go(ctx, go, libraries, srcs):
             "-outdir", "{}/{}".format(ctx.genfiles_dir.path, genpath(ctx, "go")),
         ] + packages,
     )
+
     return struct(
         main_go = depset([main_go]),
         go_files = depset(go_files),
