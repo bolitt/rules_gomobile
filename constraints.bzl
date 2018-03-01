@@ -7,9 +7,9 @@ def declare_constraints():
         )
 
 
-PLATFORMS = {
-    "ios_x86_64": ["darwin", "amd64"],
-    "ios_i386": ["darwin", "386"],
-    "ios_armv7": ["darwin", "arm"],
-    "ios_arm64": ["darwin", "arm64"],
-}
+PLATFORMS = [
+    "ios_x86_64",
+    "ios_i386",
+    "ios_armv7",
+    "ios_arm64",
+]

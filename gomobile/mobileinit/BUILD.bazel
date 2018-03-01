@@ -5,17 +5,17 @@ go_library(
     srcs = [
         "mobileinit.go",
     ] + select({
-        "@io_bazel_rules_go//go/platform:android": [
+        "@co_znly_rules_gomobile//platform:android": [
             "mobileinit_android.go",
         ],
-        "@io_bazel_rules_go//go/platform:darwin": [
+        "@co_znly_rules_gomobile//platform:ios": [
             "mobileinit_ios.go",
         ],
         "//conditions:default": [],
     }),
     cgo = True,
     clinkopts = select({
-        "@io_bazel_rules_go//go/platform:android": [
+        "@co_znly_rules_gomobile//platform:android": [
             "-landroid -llog",
         ],
         "//conditions:default": [],

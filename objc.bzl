@@ -1,13 +1,6 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_path", "GoLibrary", "GoSource", "GoPath", "go_context")
 load("@co_znly_rules_gomobile//:common.bzl", "pkg_short", "genpath", "run_ex")
 
-IOS_CONSTRAINTS = {
-    "ios_x86_64": ["darwin", "amd64"],
-    "ios_i386": ["darwin", "386"],
-    "ios_armv7": ["darwin", "arm"],
-    "ios_arm64": ["darwin", "arm64"],
-}
-
 SUPPORT_FILES_OBJC = [
     "seq_darwin.go",
     "seq_darwin.m",
@@ -62,7 +55,7 @@ def gobind_objc(ctx, go, env, libraries, srcs):
         env = env,
         arguments = [
             "-lang", "objc",
-            "-outdir", "{}/{}".format(ctx.genfiles_dir.path, genpath(ctx, "objc")),
+            "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx, "objc"),
         ] + packages,
     )
 

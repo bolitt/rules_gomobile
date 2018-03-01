@@ -39,12 +39,16 @@ def gobind_java(ctx, go, env, libraries, srcs):
         files = _gen_filenames(library)
         for filename in [files.pkg_class_java]:
             java_files.append(go.actions.declare_file(genpath(ctx, "java", filename)))
+        for filename in [files.pkg_java_h, files.pkg_java_c]:
+            cc_files.append(go.actions.declare_file(genpath(ctx, "java", filename)))
     for filename in SUPPORT_FILES_JAVA:
         java_files.append(go.actions.declare_file(genpath(ctx, "java", filename)))
     for filename in SUPPORT_FILES_CC:
         cc_files.append(go.actions.declare_file(genpath(ctx, "java", filename)))
     for filename in SUPPORT_FILES_GO:
         go_files.append(go.actions.declare_file(genpath(ctx, "java", filename)))
+
+
     run_ex(ctx,
         inputs = srcs,
         outputs = java_files + cc_files + go_files,
@@ -52,7 +56,7 @@ def gobind_java(ctx, go, env, libraries, srcs):
         env = env,
         arguments = [
             "-lang", "java",
-            "-outdir", "{}/{}".format(ctx.genfiles_dir.path, genpath(ctx, "java")),
+            "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx, "java"),
         ] + packages,
     )
     return struct(

@@ -1,0 +1,3 @@
+load("@co_znly_rules_gomobile//platform:ios.bzl", "declare_platforms")
+
+declare_platforms()

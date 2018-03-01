@@ -27,10 +27,6 @@ def _gen_filenames(library):
     )
 
 def gobind_go(ctx, go, env, libraries, srcs):
-    gopath = ctx.attr.go_path[GoPath]
-    env = {
-        "GOPATH": "$(pwd)/" + ctx.bin_dir.path + "/" + ctx.attr.go_path[GoPath].gopath,
-    }
     objc_hdrs = []
     objc_files = []
     go_files = []
@@ -52,7 +48,7 @@ def gobind_go(ctx, go, env, libraries, srcs):
         env = env,
         arguments = [
             "-lang", "go",
-            "-outdir", "{}/{}".format(ctx.genfiles_dir.path, genpath(ctx, "go")),
+            "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx, "go"),
         ] + packages,
     )
 

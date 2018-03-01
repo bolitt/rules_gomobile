@@ -1,11 +1,11 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
-    data = [
-        "seq_android.c.support",
-        "seq_android.go.support",
+    srcs = [
+        "doc.go",
     ],
+    data = glob(include=["*"], exclude=["doc.go"]),
     importpath = "golang.org/x/mobile/bind/java",
     visibility = ["//visibility:public"],
 )
