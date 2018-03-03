@@ -6,10 +6,23 @@ SUPPORT_FILES_GO = [
     "seq.go",
 ]
 
-MAIN_GO = """\
+MAIN_OBJC_GO = """\
 package main
 
 import (
+    _ "gomobile_bind"
+)
+
+import "C"
+
+func main() {}
+"""
+
+MAIN_JAVA_GO = """\
+package main
+
+import (
+	_ "golang.org/x/mobile/bind/java"
     _ "gomobile_bind"
 )
 
@@ -38,8 +51,10 @@ def gobind_go(ctx, go, env, libraries, srcs):
     for filename in SUPPORT_FILES_GO:
         go_files.append(go.actions.declare_file(genpath(ctx, "go", filename)))
 
-    main_go = go.actions.declare_file(genpath(ctx, "go", "main.go"))
-    go.actions.write(main_go, MAIN_GO)
+    main_objc_go = go.actions.declare_file(genpath(ctx, "go", "main.objc.go"))
+    go.actions.write(main_objc_go, MAIN_OBJC_GO)
+    main_java_go = go.actions.declare_file(genpath(ctx, "go", "main.java.go"))
+    go.actions.write(main_java_go, MAIN_JAVA_GO)
 
     run_ex(ctx,
         inputs = srcs,
@@ -53,6 +68,7 @@ def gobind_go(ctx, go, env, libraries, srcs):
     )
 
     return struct(
-        main_go = depset([main_go]),
+        main_objc_go = depset([main_objc_go]),
+        main_java_go = depset([main_java_go]),
         go_files = depset(go_files),
     )

@@ -7,8 +7,8 @@ def genpath(ctx, lang, filename = ""):
 def pkg_short(library):
     return library.importpath.split("/")[-1]
 
-def slug(name, slug, token="."):
-    return name + token + slug
+def slug(*args, token="."):
+    return token.join(args)
 
 def run_ex(ctx, env=None, executable=None, arguments=None, **kwargs):
     exports = " && ".join(["export %s=\"%s\"" % (k, v) for k, v in env.items()])
