@@ -9,10 +9,10 @@ SUPPORT_FILES_JAVA = [
 ]
 
 SUPPORT_FILES_CC = [
-    "java_universe.c",
+    "universe_android.c",
+    "universe_android.h",
     "seq_android.c",
-    "seq.h",
-    "universe.h",
+    "seq_android.h",
 ]
 
 SUPPORT_FILES_GO = [
@@ -21,14 +21,18 @@ SUPPORT_FILES_GO = [
 
 def _gen_filenames(library):
     pkg_short_ = pkg_short(library)
+    pkg_short_title = pkg_short.title()
     return struct(
         library = library,
         pkg_short = pkg_short_,
-        pkg_class_java = pkg_short_ + "/" + pkg_short_.title() + ".java",
-        pkg_java_h = pkg_short_ + ".h",
-        pkg_java_c = "java_" + pkg_short_ + ".c",
+        hdr = pkg_short_ + ".h",
+        android_hdr = pkg_short_ + "_android.h",
+        android_c = pkg_short_ + "_android.c",
+        android_class = pkg_short_ + "/" + pkg_short_title + ".java",
+        darwin_hdr = pkg_short_ + "_darwin.h",
+        darwin_m = pkg_short_title + "_darwin.m",
+        darwin_public_hdr = pkg_short_title + ".objc.h",
     )
-
 
 def gobind_java(ctx, go, env, libraries, srcs):
     java_files = []
@@ -48,17 +52,6 @@ def gobind_java(ctx, go, env, libraries, srcs):
     for filename in SUPPORT_FILES_GO:
         go_files.append(go.actions.declare_file(genpath(ctx, "java", filename)))
 
-
-    run_ex(ctx,
-        inputs = srcs,
-        outputs = java_files + cc_files + go_files,
-        executable = ctx.executable._gobind,
-        env = env,
-        arguments = [
-            "-lang", "java",
-            "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx, "java"),
-        ] + packages,
-    )
     return struct(
         java_files = depset(java_files),
         cc_files = depset(cc_files),

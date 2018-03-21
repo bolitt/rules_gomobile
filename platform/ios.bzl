@@ -3,16 +3,31 @@ _OS = {
     "android": "android",
 }
 
-_CPUS = {
-    "i386": "386",
-    "x86_64": "amd64",
-    "armv7": "arm",
+_ARCHS = [
+    "386",
+    "amd64",
+    "arm",
+    "arm64",
+]
+
+_IOS_CPUS = {
+    "386": "i386",
+    "amd64": "x86_64",
+    "arm": "armv7",
     "arm64": "arm64",
+}
+
+_ANDROID_CROSSTOOL_TOP = "@androidndk//:toolchain-libcpp"
+_ANDROID_CPUS = {
+    "386": "x86",
+    "amd64": "x86_64",
+    "arm": "armeabi-v7a",
+    "arm64": "arm64-v8a",
 }
 
 def declare_platforms():
     native.constraint_setting(name = "os")
-    native.constraint_setting(name = "cpu")
+    native.constraint_setting(name = "arch")
 
     for os, goos in _OS.items():
         native.constraint_value(
@@ -22,32 +37,33 @@ def declare_platforms():
         native.config_setting(
             name = os,
             constraint_values = [
-                "@co_znly_rules_gomobile//platform:_" + os,
+                ":_" + os,
             ],
             visibility = ["//visibility:public"],
         )
-    for cpu, goarch in _CPUS.items():
+
+    for arch in _ARCHS:
         native.constraint_value(
-            name = "_" + cpu,
-            constraint_setting = "cpu",
+            name = "_" + arch,
+            constraint_setting = "arch",
         )
         native.config_setting(
-            name = cpu,
+            name = arch,
             constraint_values = [
-                "@co_znly_rules_gomobile//platform:_" + cpu,
+                ":_" + arch,
             ],
             visibility = ["//visibility:public"],
         )
 
     for os, goos in _OS.items():
-        for cpu, goarch in _CPUS.items():
+        for arch in _ARCHS:
             native.platform(
-                name = os + "_" + cpu,
+                name = os + "_" + arch,
                 constraint_values = [
-                    "@co_znly_rules_gomobile//platform:_" + os,
-                    "@co_znly_rules_gomobile//platform:_" + cpu,
+                    ":_" + os,
+                    ":_" + arch,
                     "@io_bazel_rules_go//go/toolchain:" + goos,
-                    "@io_bazel_rules_go//go/toolchain:" + goarch,
+                    "@io_bazel_rules_go//go/toolchain:" + arch,
                 ],
                 visibility = ["//visibility:public"],
             )

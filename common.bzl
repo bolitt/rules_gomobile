@@ -1,11 +1,11 @@
 def gen_include_path(gobind_gen, lang):
     return "$(GENDIR)/{}/{}".format(gobind_gen, lang)
 
-def genpath(ctx, lang, filename = ""):
-    return ctx.label.name + "/" + lang + "/" + filename
+def genpath(ctx, *args):
+    return ctx.label.name + "/" + "/".join(args)
 
-def pkg_short(library):
-    return library.importpath.split("/")[-1]
+def pkg_short(importpath):
+    return importpath.split("/")[-1]
 
 def slug(*args, token="."):
     return token.join(args)

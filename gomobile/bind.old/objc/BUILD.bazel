@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "support_library",
+    data = [
+        "ref.h",
+        "seq.h",
+        "seq_darwin.go.support",
+        "seq_darwin.m.support",
+    ],
+    importpath = "golang.org/x/mobile/bind/objc",
+    visibility = ["//visibility:public"],
+)

@@ -55,6 +55,7 @@ def gobind_objc(ctx, go, env, libraries, srcs):
         env = env,
         arguments = [
             "-lang", "objc",
+            "-goinstall=false",
             "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx, "objc"),
         ] + packages,
     )

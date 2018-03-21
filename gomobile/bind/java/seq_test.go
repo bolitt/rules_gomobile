@@ -23,21 +23,21 @@ func TestClasses(t *testing.T) {
 		t.Skipf("java importer is not available")
 	}
 	runTest(t, []string{
-		"golang.org/x/mobile/bind/testpkg/javapkg",
+		"golang.org/x/mobile/bind/testdata/testpkg/javapkg",
 	}, "", "ClassesTest")
 }
 
 func TestCustomPkg(t *testing.T) {
 	runTest(t, []string{
-		"golang.org/x/mobile/bind/testpkg",
+		"golang.org/x/mobile/bind/testdata/testpkg",
 	}, "org.golang.custompkg", "CustomPkgTest")
 }
 
 func TestJavaSeqTest(t *testing.T) {
 	runTest(t, []string{
-		"golang.org/x/mobile/bind/testpkg",
-		"golang.org/x/mobile/bind/testpkg/secondpkg",
-		"golang.org/x/mobile/bind/testpkg/simplepkg",
+		"golang.org/x/mobile/bind/testdata/testpkg",
+		"golang.org/x/mobile/bind/testdata/testpkg/secondpkg",
+		"golang.org/x/mobile/bind/testdata/testpkg/simplepkg",
 	}, "", "SeqTest")
 }
 
@@ -104,7 +104,7 @@ func runTest(t *testing.T, pkgNames []string, javaPkg, javaCls string) {
 	}
 	defer os.Chdir(cwd)
 
-	for _, d := range []string{"src/main", "src/androidTest/java/go", "libs"} {
+	for _, d := range []string{"src/main", "src/androidTest/java/go", "libs", "src/main/res/values"} {
 		err = os.MkdirAll(filepath.Join(tmpdir, d), 0700)
 		if err != nil {
 			t.Fatal(err)
@@ -138,6 +138,13 @@ func runTest(t *testing.T, pkgNames []string, javaPkg, javaCls string) {
 	err = ioutil.WriteFile(fname, []byte(androidmanifest), 0700)
 	if err != nil {
 		t.Fatalf("failed to write android manifest file: %v", err)
+	}
+
+	// Add a dummy string resource to avoid errors from the Android build system.
+	fname = filepath.Join(tmpdir, "src/main/res/values/strings.xml")
+	err = ioutil.WriteFile(fname, []byte(stringsxml), 0700)
+	if err != nil {
+		t.Fatalf("failed to write strings.xml file: %v", err)
 	}
 
 	fname = filepath.Join(tmpdir, "build.gradle")
@@ -207,7 +214,11 @@ repositories {
     flatDir { dirs 'libs' }
 }
 dependencies {
-    compile 'com.android.support:appcompat-v7:19.0.0'
     compile(name: "pkg", ext: "aar")
 }
 `
+
+const stringsxml = `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="dummy">dummy</string>
+</resources>`
