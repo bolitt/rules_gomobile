@@ -65,7 +65,7 @@ def _gen_pkg_files(ctx, go, pkg, outputs):
         outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", files.darwin_public_hdr)))
         for filename in [files.android_hdr, files.android_c]:
             outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", filename)))
-        outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", files.android_class)))
+        outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java",  "/".join(ctx.attr.android_java_package.split(".")), files.android_class)))
         outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", files.go_main)))
 
 def _gen_universe_files(ctx, go, outputs):
@@ -99,7 +99,7 @@ def _gen_exported_types(ctx, go, outputs):
         lib = dep[GoLibrary]
         pkg_short_ = pkg_short(lib.importpath)
         for type_ in types_str.split(","):
-            outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", pkg_short_, type_ + ".java")))
+            outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", "/".join(ctx.attr.android_java_package.split(".")), pkg_short_, type_ + ".java")))
 
 def _gobind_impl(ctx):
     """_gobind_impl"""
@@ -163,6 +163,7 @@ def _gobind_impl(ctx):
         env = env,
         arguments = [
             "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx),
+            "-javapkg", ctx.attr.android_java_package,
         ] + packages,
     )
 
@@ -188,6 +189,7 @@ _gobind = rule(
     attrs = {
         "deps": attr.label_keyed_string_dict(providers = [GoLibrary]),
         "go_path": attr.label(providers = [GoPath]),
+        "android_java_package": attr.string(mandatory=True),
         "_go_context_data": attr.label(default = Label("@io_bazel_rules_go//:go_context_data")),
         "_gobind": attr.label(
             executable = True,
@@ -328,7 +330,7 @@ def _gobind_java(name, groups, gobind_gen, deps):
 #     )
 #     return gomobile_main_binary
 
-def gobind(name, deps):
+def gobind(name, deps, android_java_package):
     gopath_gen = slug(name, "gopath")
     go_path(
         name = gopath_gen,
@@ -349,6 +351,7 @@ def gobind(name, deps):
     _gobind(
         name = gobind_gen,
         go_path = gopath_gen,
+        android_java_package = android_java_package,
         deps = _deps,
     )
 
