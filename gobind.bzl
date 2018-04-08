@@ -59,40 +59,40 @@ def _gen_filenames(importpath):
 
 def _gen_pkg_files(ctx, go, pkg, outputs):
         files = _gen_filenames(pkg)
-        outputs.cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", files.hdr)))
+        outputs.cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.hdr)))
         for filename in [files.darwin_hdr, files.darwin_m]:
-            outputs.darwin_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", filename)))
-        outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", files.darwin_public_hdr)))
+            outputs.darwin_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", filename)))
+        outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.darwin_public_hdr)))
         for filename in [files.android_hdr, files.android_c]:
-            outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", filename)))
+            outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", filename)))
         outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java",  "/".join(ctx.attr.android_java_package.split(".")), files.android_class)))
-        outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", files.go_main)))
+        outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.go_main)))
 
 def _gen_universe_files(ctx, go, outputs):
     files = _gen_filenames("universe")
-    outputs.cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", files.hdr)))
+    outputs.cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.hdr)))
     for filename in [files.darwin_hdr, files.darwin_m]:
-        outputs.darwin_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", filename)))
-    outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", files.darwin_public_hdr)))
+        outputs.darwin_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", filename)))
+    outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.darwin_public_hdr)))
     for filename in [files.android_hdr, files.android_c]:
-        outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", filename)))
+        outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", filename)))
     outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", "go", "Universe.java")))
 
 def _gen_seq_files(ctx, go, outputs):
-    outputs.cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", "seq.h")))
+    outputs.cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq.h")))
     for ext in [".h", ".m"]:
-        outputs.darwin_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", "seq_darwin" + ext)))
-    outputs.darwin_go_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", "seq_darwin.go")))
+        outputs.darwin_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq_darwin" + ext)))
+    outputs.darwin_go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq_darwin.go")))
     for ext in [".h", ".c"]:
-        outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", "seq_android" + ext)))
-    outputs.android_go_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", "seq_android.go")))
-    outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", "seq.go")))
+        outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq_android" + ext)))
+    outputs.android_go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq_android.go")))
+    outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq.go")))
     outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", "go", "Seq.java")))
 
 def _gen_support_files(ctx, go, outputs):
     for file in _SUPPORT_FILES_JAVA:
         outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", file)))
-    outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", "ref.h")))
+    outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "ref.h")))
 
 def _gen_exported_types(ctx, go, outputs):
     for dep, types_str in ctx.attr.deps.items():
