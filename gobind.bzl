@@ -29,11 +29,11 @@ def _pwd_arg(args):
     ret = args[:]
     for i, arg in enumerate(args):
         if arg in _CGO_ARGS_NEXT:
-            ret[i + 1] = "$(pwd)/" + args[i + 1]
+            ret[i + 1] = "${PWD}/" + args[i + 1]
             continue
         for prefix in _GGO_ARGS_PREFIXED:
             if arg.startswith(prefix):
-                ret[i] = prefix + "$(pwd)/" + arg[len(prefix):]
+                ret[i] = prefix + "${PWD}/" + arg[len(prefix):]
                 break
     return ret
 
