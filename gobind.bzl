@@ -128,7 +128,7 @@ def _gobind_impl(ctx):
     _gen_support_files(ctx, go, outputs)
     _gen_exported_types(ctx, go, outputs)
 
-    outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gomobile", "go_main.go")))
+    outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "go_main.go")))
 
     cflags = " ".join(_pwd_arg(go.cgo_tools.compiler_options))
     ldflags = " ".join(_pwd_arg(go.cgo_tools.linker_options))
