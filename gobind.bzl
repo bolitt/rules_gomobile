@@ -133,10 +133,10 @@ def _gobind_impl(ctx):
     cflags = " ".join(_pwd_arg(go.cgo_tools.compiler_options))
     ldflags = " ".join(_pwd_arg(go.cgo_tools.linker_options))
     env = {
-        "GOROOT": "$(pwd)/" + go.root,
+        "GOROOT": "${PWD}/" + go.root,
         "GOROOT_FINAL": "GOROOT",
-        "PATH": "$(pwd)/" + go.root + "/bin:${PATH}",
-        "GOPATH": "$(pwd)/" + ctx.bin_dir.path + "/" + gopath.gopath,
+        "PATH": "${PWD}/" + go.root + "/bin:${PATH}",
+        "GOPATH": "${PWD}/" + gopath.gopath_file.dirname,
         "GOOS": go.mode.goos,
         "GOARCH": go.mode.goarch,
         "CGO_ENABLED": "1",
