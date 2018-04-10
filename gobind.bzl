@@ -130,8 +130,6 @@ def _gobind_impl(ctx):
 
     outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "go_main.go")))
 
-    cflags = " ".join(_pwd_arg(go.cgo_tools.compiler_options))
-    ldflags = " ".join(_pwd_arg(go.cgo_tools.linker_options))
     env = {
         "GOROOT": "${PWD}/" + go.root,
         "GOROOT_FINAL": "GOROOT",
@@ -139,13 +137,7 @@ def _gobind_impl(ctx):
         "GOPATH": "${PWD}/" + gopath.gopath_file.dirname,
         "GOOS": go.mode.goos,
         "GOARCH": go.mode.goarch,
-        "CGO_ENABLED": "1",
-        "CGO_CFLAGS": cflags,
-        "CGO_CPPFLAGS": cflags,
-        "CGO_CXXFLAGS": cflags,
-        "CGO_LDFLAGS": ldflags,
     }
-
     outs = outputs.go_files + \
         outputs.cc_files + \
         outputs.android_go_files + \
@@ -156,7 +148,7 @@ def _gobind_impl(ctx):
         outputs.darwin_public_hdrs
 
     run_ex(ctx,
-        inputs = go.sdk_files + go.crosstool + go.sdk_tools + gopath.srcs,
+        inputs = go.sdk_files + go.sdk_tools + go.crosstool + ctx.files.go_path,
         outputs = outs,
         mnemonic = "GoBind",
         executable = ctx.executable._gobind,
@@ -164,6 +156,7 @@ def _gobind_impl(ctx):
         arguments = [
             "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx),
             "-javapkg", ctx.attr.android_java_package,
+            "-goinstall=false",
         ] + packages,
     )
 
@@ -217,8 +210,8 @@ def _gobind_java(name, groups, gobind_gen, deps):
         ],
         cgo = True,
         copts = [
-            "-D__GOMOBILE_ANDROID__",
-            "-iquote", "$(GENDIR)/%s/src/gomobile" % gobind_gen,
+            "-D__GOBIND_ANDROID__",
+            "-iquote", "$(GENDIR)/%s/src/gobind" % gobind_gen,
         ],
         clinkopts = [
             "-landroid",
@@ -228,8 +221,8 @@ def _gobind_java(name, groups, gobind_gen, deps):
         importpath = "main",
         visibility = ["//visibility:private"],
         deps = deps.keys() + [
-            "@co_znly_rules_gomobile//gomobile/bind/java:go_default_library",
-            "@co_znly_rules_gomobile//gomobile/seq:go_default_library",
+            "@org_golang_x_mobile//bind/java:go_default_library",
+            "@org_golang_x_mobile//bind/seq:go_default_library",
         ],
     )
     go_binary(
@@ -334,12 +327,15 @@ def gobind(name, deps, android_java_package):
     gopath_gen = slug(name, "gopath")
     go_path(
         name = gopath_gen,
-        tags = ["manual"],
+        mode = "link",
+        pure = "off",
+        linkmode = "c-shared",
+        with_binaries = True,
         deps = deps.keys() + [
-            "@co_znly_rules_gomobile//gomobile/bind:go_default_library",
-            "@co_znly_rules_gomobile//gomobile/bind/objc:support_library",
-            "@co_znly_rules_gomobile//gomobile/bind/java:support_library",
-            "@co_znly_rules_gomobile//gomobile/seq:go_default_library",
+            "@org_golang_x_mobile//bind:go_default_library",
+            "@org_golang_x_mobile//bind/objc:go_default_library",
+            "@org_golang_x_mobile//bind/java:go_default_library",
+            "@org_golang_x_mobile//bind/seq:go_default_library",
         ],
     )
 

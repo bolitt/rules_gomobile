@@ -20,15 +20,3 @@ go_library(
     importpath = "golang.org/x/mobile/internal/mobileinit",
     visibility = ["//gomobile:__subpackages__"],
 )
-        # clinkopts = clinkopts + [
-        #     "-llog",
-        #     "-ldl",
-        #     "-lc++_static",
-        #     "-lc++abi",
-        #     "-landroid_support"
-        # ] + select({
-        #     "@io_bazel_rules_go//go/platform:android_arm": [
-        #         "-lunwind",
-        #     ],
-        #     "//conditions:default": [],
-        # }),
