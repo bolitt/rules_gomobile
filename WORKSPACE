@@ -8,10 +8,5 @@ load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_too
 go_rules_dependencies()
 go_register_toolchains()
 
-local_repository(
-    name = "org_golang_x_mobile",
-    path = "../mobile",
-)
-
 load("@co_znly_rules_gomobile//:repositories.bzl", "gomobile_repositories")
 gomobile_repositories()

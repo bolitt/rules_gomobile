@@ -137,6 +137,7 @@ def _gobind_impl(ctx):
         "GOPATH": "${PWD}/" + gopath.gopath_file.dirname,
         "GOOS": go.mode.goos,
         "GOARCH": go.mode.goarch,
+        "CGO_ENABLED": 1,
     }
     outs = outputs.go_files + \
         outputs.cc_files + \
@@ -156,7 +157,7 @@ def _gobind_impl(ctx):
         arguments = [
             "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx),
             "-javapkg", ctx.attr.android_java_package,
-            "-goinstall=false",
+            #"-goinstall=false",
         ] + packages,
     )
 

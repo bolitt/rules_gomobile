@@ -63,7 +63,7 @@ def gobind_go(ctx, go, env, libraries, srcs):
         env = env,
         arguments = [
             # "-lang", "go",
-            "-goinstall=false",
+            # "-goinstall=false",
             "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx, "go"),
         ] + packages,
     )
