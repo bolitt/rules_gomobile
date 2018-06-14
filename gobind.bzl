@@ -192,6 +192,7 @@ _gobind = rule(
             cfg = "host",
             default = Label("@org_golang_x_mobile//cmd/gobind:gobind")),
         "arguments": attr.string_list(),
+        "sdk_frameworks": attr.string_list(),
     },
     output_to_genfiles = True,
     toolchains = ["@io_bazel_rules_go//go:toolchain"],
@@ -258,7 +259,7 @@ def _gobind_java(name, groups, gobind_gen, deps):
     )
     return android_library_name
 
-def _gobind_objc(name, groups, gobind_gen, deps):
+def _gobind_objc(name, groups, gobind_gen, deps, sdk_frameworks, **kwargs):
     gomobile_bind_library = slug(name, "objc", "gomobile_bind_library")
     gomobile_main_library = slug(name, "objc", "gomobile_main_library")
     gomobile_main_binary = slug(name, "objc", "gomobile_main_binary")
@@ -273,9 +274,10 @@ def _gobind_objc(name, groups, gobind_gen, deps):
             groups["darwin_public_hdrs"],
         ],
         cgo = True,
+        objc = True,
         copts = [
-            "-D__GOBIND_IOS__",
-            "-iquote", gen_include_path(gobind_gen, "objc"),
+            "-D__GOBIND_DARWIN__",
+            "-iquote", "$(GENDIR)/%s/src/gobind" % gobind_gen,
             "-x", "objective-c",
             "-fmodules",
             "-fobjc-arc",
@@ -285,6 +287,7 @@ def _gobind_objc(name, groups, gobind_gen, deps):
         importpath = "main",
         visibility = ["//visibility:private"],
         deps = deps.keys() + [
+            "@org_golang_x_mobile//bind/java:go_default_library",
             "@org_golang_x_mobile//bind/seq:go_default_library",
         ],
     )
@@ -295,6 +298,7 @@ def _gobind_objc(name, groups, gobind_gen, deps):
         pure = "off",
         linkmode = "c-archive",
         visibility = ["//visibility:public"],
+        **kwargs
     )
 
     # objc deps can only have underscores and dashes
@@ -302,13 +306,22 @@ def _gobind_objc(name, groups, gobind_gen, deps):
         name = slug(name, "objc", token="_"),
         hdrs = [groups["darwin_public_hdrs"]],
         alwayslink = 1,
+        includes = ["."],
         archives = [gomobile_main_binary],
+        sdk_frameworks = sdk_frameworks,
+        visibility = ["//visibility:public"],
+    )
+
+    native.filegroup(
+        name = slug(name, "objc_hdrs", token="_"),
+        srcs = [gobind_gen],
+        output_group = "darwin_public_hdrs",
         visibility = ["//visibility:public"],
     )
 
     return gomobile_main_binary
 
-def gobind(name, deps, android_java_package):
+def gobind(name, deps, android_java_package, sdk_frameworks, **kwargs):
     gopath_gen = slug(name, "gopath")
     go_path(
         name = gopath_gen,
@@ -330,6 +343,7 @@ def gobind(name, deps, android_java_package):
         name = gobind_gen,
         go_path = gopath_gen,
         android_java_package = android_java_package,
+        sdk_frameworks = sdk_frameworks,
         deps = _deps,
         arguments = select({
             "@io_bazel_rules_go//go/platform:darwin": [
@@ -388,4 +402,4 @@ def gobind(name, deps, android_java_package):
         )
 
 #    _gobind_java(name, groups, gobind_gen, _deps)
-    _gobind_objc(name, groups, gobind_gen, _deps)
+    _gobind_objc(name, groups, gobind_gen, _deps, sdk_frameworks, **kwargs)
