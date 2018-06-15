@@ -380,18 +380,6 @@ def gobind(name, deps, android_java_package, sdk_frameworks, **kwargs):
     ]
     groups = {}
 
-    # filegroups = {
-    #     "go_files": go_files,
-    #     "go_main": go_main,
-    #     "go_files": go_files,
-    #     "cc_files": cc_files,
-    #     "android_go_files": android_go_files,
-    #     "android_cc_files": android_cc_files,
-    #     "android_java_files": android_java_files,
-    #     "darwin_go_files": darwin_go_files,
-    #     "darwin_cc_files": darwin_cc_files,
-    #     "darwin_public_hdrs": darwin_public_hdrs,
-    # }
     for group_name in _group_names:
         target_group_name = slug(name, group_name)
         groups[group_name] = target_group_name
@@ -401,5 +389,5 @@ def gobind(name, deps, android_java_package, sdk_frameworks, **kwargs):
             output_group = group_name,
         )
 
-#    _gobind_java(name, groups, gobind_gen, _deps)
+    _gobind_java(name, groups, gobind_gen, _deps)
     _gobind_objc(name, groups, gobind_gen, _deps, sdk_frameworks, **kwargs)
