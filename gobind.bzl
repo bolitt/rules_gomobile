@@ -162,7 +162,7 @@ def _gobind_impl(ctx):
             "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx),
         ] + ctx.attr.arguments + packages,
     )
- 
+
     return [
         outputs,
         DefaultInfo(
@@ -198,7 +198,7 @@ _gobind = rule(
     toolchains = ["@io_bazel_rules_go//go:toolchain"],
 )
 
-def _gobind_java(name, groups, gobind_gen, deps):
+def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
     gomobile_main_library = slug(name, "java", "gomobile_main_library")
     # gomobile_main_binary = slug(name, "java", "gomobile_main_binary")
     gomobile_main_binary = "gojni"
@@ -230,12 +230,13 @@ def _gobind_java(name, groups, gobind_gen, deps):
             "@org_golang_x_mobile//bind/seq:go_default_library",
         ],
     )
-    go_binary( 
+    go_binary(
         name = gomobile_main_binary,
         embed = [gomobile_main_library],
         pure = "off",
         linkmode = "c-shared",
         visibility = ["//visibility:public"],
+        **kwargs
     )
     native.cc_import(
         name = gomobile_main_binary_cc_import,
@@ -389,5 +390,5 @@ def gobind(name, deps, android_java_package, sdk_frameworks, **kwargs):
             output_group = group_name,
         )
 
-    _gobind_java(name, groups, gobind_gen, _deps)
+    _gobind_java(name, groups, gobind_gen, _deps, **kwargs)
     _gobind_objc(name, groups, gobind_gen, _deps, sdk_frameworks, **kwargs)
