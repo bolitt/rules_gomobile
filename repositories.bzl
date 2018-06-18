@@ -15,8 +15,8 @@ def gomobile_repositories():
     )
     _maybe(git_repository,
         name = "org_golang_x_mobile",
-        commit = "5665cf37628bb651a12968646808b67661ad9afb",
-        remote = "git@github.com:golang/mobile.git",
+        commit = "6595c135a1f4ce9f7224f4450f688ff3669631d0",
+        remote = "git@github.com:znly/mobile.git",
         overlay = manifest["org_golang_x_mobile"],
     )
     _maybe(native.http_archive,
