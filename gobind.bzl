@@ -327,6 +327,8 @@ def gobind(name, deps, android_java_package, sdk_frameworks, **kwargs):
     go_path(
         name = gopath_gen,
         mode = "link",
+        include_binaries = True,
+        pure = "off",
         deps = deps.keys() + [
             "@org_golang_x_mobile//bind:go_default_library",
             "@org_golang_x_mobile//bind/objc:go_default_library",
