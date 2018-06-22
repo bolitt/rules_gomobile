@@ -9,12 +9,6 @@ go_library(
         "seq_android.h",
     ],
     cgo = True,
-    clinkopts = select({
-        "@io_bazel_rules_go//go/platform:android": [
-            "-llog",
-        ],
-        "//conditions:default": [],
-    }),
     importpath = "golang.org/x/mobile/bind/java",
     visibility = ["//visibility:public"],
     deps = select({
