@@ -172,10 +172,14 @@ def _gobind_impl(ctx):
         executable = ctx.executable._gobind,
         env = env,
         arguments = [
-            "-javapkg", ctx.attr.java_package,
-            "-prefix", ctx.attr.objc_prefix,
+            "-javapkg=" + ctx.attr.java_package,
+            "-prefix=" + ctx.attr.objc_prefix,
             "-tags=" + ",".join(ctx.attr.go_tags),
-            "-outdir", ctx.genfiles_dir.path + "/" + genpath(ctx),
+            "-outdir=" + "/".join([
+                ctx.genfiles_dir.path,
+                ctx.label.package,
+                ctx.label.name,
+            ]),
         ] + packages,
     )
 
