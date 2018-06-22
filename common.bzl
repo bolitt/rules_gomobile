@@ -2,7 +2,7 @@ def gen_include_path(gobind_gen, lang):
     return "$(GENDIR)/{}/{}".format(gobind_gen, lang)
 
 def genpath(ctx, *args):
-    return ctx.label.name + "/" + "/".join(args)
+    return "/".join((ctx.label.name,) + args)
 
 def pkg_short(importpath):
     return importpath.split("/")[-1]
