@@ -71,8 +71,7 @@ def _gen_filenames(importpath, java_package, objc_prefix):
 
 def _gen_pkg_files(ctx, go, pkg, outputs):
     files = _gen_filenames(pkg, ctx.attr.java_package, ctx.attr.objc_prefix)
-    outputs.cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.hdr)))
-
+    outputs.cc_hdrs_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.hdr)))
     for filename in [files.darwin_hdr, files.darwin_m]:
         outputs.darwin_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", filename)))
     outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.darwin_public_hdr)))
@@ -85,7 +84,7 @@ def _gen_pkg_files(ctx, go, pkg, outputs):
 
 def _gen_universe_files(ctx, go, outputs):
     files = _gen_filenames("universe", "", "")
-    outputs.cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.hdr)))
+    outputs.cc_hdrs_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.hdr)))
     for filename in [files.darwin_hdr, files.darwin_m]:
         outputs.darwin_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", filename)))
     outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.darwin_public_hdr)))
@@ -94,7 +93,7 @@ def _gen_universe_files(ctx, go, outputs):
     outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", "go", "Universe.java")))
 
 def _gen_seq_files(ctx, go, outputs):
-    outputs.cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq.h")))
+    outputs.cc_hdrs_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq.h")))
     for ext in [".h", ".m"]:
         outputs.darwin_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq_darwin" + ext)))
     outputs.darwin_go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq_darwin.go")))
@@ -127,6 +126,7 @@ def _gobind_impl(ctx):
         go_main = [],
         go_files = [],
         cc_files = [],
+        cc_hdrs_files = [],
         android_go_files = [],
         android_cc_files = [],
         android_java_files = [],
@@ -157,6 +157,7 @@ def _gobind_impl(ctx):
 
     outs = outputs.go_files + \
         outputs.cc_files + \
+        outputs.cc_hdrs_files + \
         outputs.android_go_files + \
         outputs.android_cc_files + \
         outputs.android_java_files + \
@@ -186,6 +187,7 @@ def _gobind_impl(ctx):
         OutputGroupInfo(
             go_files = outputs.go_files,
             cc_files = outputs.cc_files,
+            cc_hdrs_files = outputs.cc_hdrs_files,
             android_go_files = outputs.android_go_files,
             android_cc_files = outputs.android_cc_files,
             android_java_files = outputs.android_java_files,
@@ -206,23 +208,40 @@ _gobind = rule(
             mandatory = False,
             default = "",
         ),
-        "_go_context_data": attr.label(default = Label("@io_bazel_rules_go//:go_context_data")),
+        "_go_context_data": attr.label(
+            default = "@io_bazel_rules_go//:go_context_data",
+        ),
         "_gobind": attr.label(
             executable = True,
             cfg = "host",
-            default = Label("@org_golang_x_mobile//cmd/gobind:gobind")),
+            default = "@org_golang_x_mobile//cmd/gobind:gobind",
+        ),
     },
     output_to_genfiles = True,
     toolchains = ["@io_bazel_rules_go//go:toolchain"],
 )
 
 def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
+    gomobile_main_cc_library = slug(name, "java", "gomobile_main_cc_library")
     gomobile_main_library = slug(name, "java", "gomobile_main_library")
     # gomobile_main_binary = slug(name, "java", "gomobile_main_binary")
     gomobile_main_binary = "gojni"
     gomobile_main_binary_cc_import = slug(name, "java", "cc_import")
     gomobile_main_binary_cc_library = slug(name, "java", "cc_library")
     android_library_name = slug(name, "android_library")
+
+    native.cc_library(
+        name = gomobile_main_cc_library,
+        hdrs = [
+            groups["cc_hdrs_files"],
+        ],
+        includes = [gobind_gen + "/src/gobind"],
+        defines = [
+            "__GOBIND_ANDROID__",
+        ],
+        visibility = ["//visibility:private"],
+    )
+
     go_library(
         name = gomobile_main_library,
         srcs = [
@@ -232,14 +251,8 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
             groups["android_go_files"],
         ],
         cgo = True,
-        copts = [
-            "-D__GOBIND_ANDROID__",
-            "-iquote", "$(GENDIR)/%s/src/gobind" % gobind_gen,
-        ],
-        clinkopts = [
-            "-landroid",
-            "-llog",
-            "-ldl",
+        cdeps = [
+            gomobile_main_cc_library,
         ],
         importpath = "main",
         visibility = ["//visibility:private"],
@@ -280,8 +293,21 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
 
 def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
     gomobile_bind_library = slug(name, "objc", "gomobile_bind_library")
+    gomobile_main_cc_library = slug(name, "objc", "gomobile_main_cc_library")
     gomobile_main_library = slug(name, "objc", "gomobile_main_library")
     gomobile_main_binary = slug(name, "objc", "gomobile_main_binary")
+
+    native.cc_library(
+        name = gomobile_main_cc_library,
+        hdrs = [
+            groups["cc_hdrs_files"],
+        ],
+        includes = [gobind_gen + "/src/gobind"],
+        defines = [
+            "__GOBIND_DARWIN__",
+        ],
+        visibility = ["//visibility:private"],
+    )
 
     go_library(
         name = gomobile_main_library,
@@ -295,12 +321,13 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
         cgo = True,
         objc = True,
         copts = [
-            "-D__GOBIND_DARWIN__",
-            "-iquote", "$(GENDIR)/%s/src/gobind" % gobind_gen,
             "-x", "objective-c",
             "-fmodules",
             "-fobjc-arc",
             "-Wno-shorten-64-to-32",
+        ],
+        cdeps = [
+            gomobile_main_cc_library,
         ],
         objc_enable_modules = 1,
         importpath = "main",
@@ -373,6 +400,7 @@ def gobind(name, deps, java_package="", objc_prefix="", tags=[], **kwargs):
     go_files = slug(name, "go_files")
     go_main = slug(name, "go_main")
     cc_files = slug(name, "cc_files")
+    cc_hdrs_files = slug(name, "cc_files")
     android_go_files = slug(name, "android_go_files")
     android_cc_files = slug(name, "android_cc_files")
     android_java_files = slug(name, "android_java_files")
@@ -384,6 +412,7 @@ def gobind(name, deps, java_package="", objc_prefix="", tags=[], **kwargs):
         "go_main",
         "go_files",
         "cc_files",
+        "cc_hdrs_files",
         "android_go_files",
         "android_cc_files",
         "android_java_files",
