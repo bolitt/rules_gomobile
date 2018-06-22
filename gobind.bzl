@@ -24,6 +24,9 @@ _OBJC_ATTRS = {
     "xibs": None,
 }
 
+def _filter(l):
+    return [v for v in l if v]
+
 def _extract_objc_opts(kwargs):
     objcopts = {}
     for key in kwargs.keys():
@@ -110,7 +113,7 @@ def _gen_exported_types(ctx, go, outputs):
     for dep, types_str in ctx.attr.deps.items():
         lib = dep[GoLibrary]
         pkg_short_ = pkg_short(lib.importpath)
-        for type_ in types_str.split(","):
+        for type_ in _filter(types_str.split(",")):
             outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", _java_classname(ctx.attr.java_package), pkg_short_, type_ + ".java")))
 
 def _gobind_impl(ctx):
