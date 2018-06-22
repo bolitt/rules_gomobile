@@ -9,17 +9,19 @@ _SUPPORT_FILES_JAVA = [
 
 _OBJC_ATTRS = {
     "hdrs": None,
-    "defines": None,
-    "enable_modules": None,
-    "includes": None,
-    "module_map": None,
-    "non_arc_srcs": None,
-    "pch": None,
+    "asset_catalogs": None,
+    "bundles": None,
+    "datamodels": None,
+    "includes,": None,
     "sdk_dylibs": None,
     "sdk_frameworks": None,
     "sdk_includes": None,
-    "textual_hdrs": None,
+    "storyboards": None,
+    "strings": None,
+    "structured_resources,": None,
+    "textual_hdrs,": None,
     "weak_sdk_frameworks": None,
+    "xibs": None,
 }
 
 def _extract_objc_opts(kwargs):
