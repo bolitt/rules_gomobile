@@ -22,10 +22,3 @@ go_library(
         "*.support",
     ]),
 )
-
-go_test(
-    name = "go_default_test",
-    srcs = ["seq_test.go"],
-    embed = [":go_default_library"],
-    deps = ["//internal/importers/java:go_default_library"],
-)

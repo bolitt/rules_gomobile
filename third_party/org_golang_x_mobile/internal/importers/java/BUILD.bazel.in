@@ -7,10 +7,3 @@ go_library(
     visibility = ["//:__subpackages__"],
     deps = ["//internal/importers:go_default_library"],
 )
-
-go_test(
-    name = "go_default_test",
-    srcs = ["java_test.go"],
-    embed = [":go_default_library"],
-    deps = ["//internal/importers:go_default_library"],
-)

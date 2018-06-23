@@ -24,14 +24,3 @@ go_library(
         "//internal/importers/objc:go_default_library",
     ],
 )
-
-go_test(
-    name = "go_default_test",
-    srcs = ["bind_test.go"],
-    embed = [":go_default_library"],
-    deps = [
-        "//internal/importers:go_default_library",
-        "//internal/importers/java:go_default_library",
-        "//internal/importers/objc:go_default_library",
-    ],
-)

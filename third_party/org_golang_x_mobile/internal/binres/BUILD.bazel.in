@@ -14,10 +14,3 @@ go_library(
     importpath = "golang.org/x/mobile/internal/binres",
     visibility = ["//:__subpackages__"],
 )
-
-go_test(
-    name = "go_default_test",
-    srcs = ["binres_test.go"],
-    data = glob(["testdata/**"]),
-    embed = [":go_default_library"],
-)

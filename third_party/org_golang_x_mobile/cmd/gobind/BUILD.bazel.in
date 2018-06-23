@@ -22,9 +22,3 @@ go_binary(
     embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )
-
-go_test(
-    name = "go_default_test",
-    srcs = ["gobind_test.go"],
-    embed = [":go_default_library"],
-)

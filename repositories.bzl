@@ -1,6 +1,6 @@
 load("@bazel_gazelle//:def.bzl", "go_repository")
 load("@io_bazel_rules_go//go/private:tools/overlay_repository.bzl", "git_repository", "http_archive")
-load("@co_znly_rules_gomobile//third_party:manifest.bzl", "manifest")
+load("@co_znly_rules_gomobile//third_party:manifest.bzl", "MANIFEST")
 
 def _maybe(repo_rule, name, **kwargs):
   if name not in native.existing_rules():
@@ -17,7 +17,7 @@ def gomobile_repositories():
         name = "org_golang_x_mobile",
         commit = "6595c135a1f4ce9f7224f4450f688ff3669631d0",
         remote = "git@github.com:znly/mobile.git",
-        overlay = manifest["org_golang_x_mobile"],
+        overlay = MANIFEST["org_golang_x_mobile"],
     )
     _maybe(native.http_archive,
         name = "build_bazel_rules_apple",

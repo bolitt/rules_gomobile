@@ -9,12 +9,6 @@ go_library(
         "mobileinit_ios.go",
     ],
     cgo = True,
-    clinkopts = select({
-        "@io_bazel_rules_go//go/platform:android": [
-            "-landroid -llog",
-        ],
-        "//conditions:default": [],
-    }),
     importpath = "golang.org/x/mobile/internal/mobileinit",
     visibility = ["//:__subpackages__"],
 )

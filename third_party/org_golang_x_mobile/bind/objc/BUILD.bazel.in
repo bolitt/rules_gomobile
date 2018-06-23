@@ -14,9 +14,3 @@ go_library(
     importpath = "golang.org/x/mobile/bind/objc",
     visibility = ["//visibility:public"],
 )
-
-go_test(
-    name = "go_default_test",
-    srcs = ["seq_test.go"],
-    embed = [":go_default_library"],
-)

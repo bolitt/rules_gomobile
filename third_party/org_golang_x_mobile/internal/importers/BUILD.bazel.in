@@ -6,9 +6,3 @@ go_library(
     importpath = "golang.org/x/mobile/internal/importers",
     visibility = ["//:__subpackages__"],
 )
-
-go_test(
-    name = "go_default_test",
-    srcs = ["ast_test.go"],
-    embed = [":go_default_library"],
-)
