@@ -67,3 +67,11 @@ def declare_platforms():
                 ],
                 visibility = ["//visibility:public"],
             )
+
+    native.config_setting(
+        name = "gomobile_multiarch",
+        define_values = {
+            "gomobile_multiarch": "true",
+        },
+        visibility = ["//visibility:public"],
+    )

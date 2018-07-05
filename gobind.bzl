@@ -115,6 +115,45 @@ def _gen_exported_types(ctx, go, outputs):
         for type_ in _filter(types_str.split(",")):
             outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", _java_classname(ctx.attr.java_package), pkg_short_, type_ + ".java")))
 
+def _gobind_multiarch_artefacts_impl(ctx):
+    cpu = ctx.fragments.cpp.cpu
+    binary_basename = ctx.file.binary.basename[:-len(ctx.file.binary.extension)] + ctx.attr.extension
+    pkg = ctx.attr.binary.label.package
+    if pkg:
+        pkg += "/"
+    outfile_name = "%s/%s%s" % (cpu, pkg, binary_basename)
+    outfile = ctx.actions.declare_file(outfile_name)
+
+    ctx.actions.run_shell(
+        outputs = [outfile],
+        command = """
+        find bazel-out/ -type f -path 'bazel-out//{cpu}-*/bin/{pkg}*/{binary}' -exec cp -f {{}} {outfile} \;
+        """.format(
+            cpu = cpu,
+            pkg = pkg,
+            binary = binary_basename,
+            outfile = outfile.path,
+        ),
+        execution_requirements = {
+            "no-sandbox": "1",
+        },
+    )
+    return [
+        DefaultInfo(
+            files = depset([outfile]),
+        ),
+    ]
+
+gobind_multiarch_artefacts = rule(
+    _gobind_multiarch_artefacts_impl,
+    attrs = {
+        "binary": attr.label(allow_single_file = True),
+        "extension": attr.string(mandatory = True),
+    },
+    output_to_genfiles = True,
+    fragments = ["cpp"],
+)
+
 def _gobind_impl(ctx):
     """_gobind_impl"""
     go = go_context(ctx)
@@ -230,6 +269,7 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
     gomobile_main_library = slug(name, "java", "gomobile_main_library")
     # gomobile_main_binary = slug(name, "java", "gomobile_main_binary")
     gomobile_main_binary = "gojni"
+    gomobile_main_binary_multiarch = slug(name, "java", "gomobile_main_binary", "multiarch")
     gomobile_main_binary_cc_import = slug(name, "java", "cc_import")
     gomobile_main_binary_cc_library = slug(name, "java", "cc_library")
     android_library_name = slug(name, "android_library")
@@ -273,15 +313,25 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
         visibility = ["//visibility:public"],
         **kwargs
     )
+
+    # ===================================
+
+    gobind_multiarch_artefacts(
+        name = gomobile_main_binary_multiarch,
+        binary = gomobile_main_binary,
+        extension = "so",
+    )
+
     native.cc_import(
         name = gomobile_main_binary_cc_import,
-        shared_library = gomobile_main_binary,
+        shared_library = select({
+            "@co_znly_rules_gomobile//platform:gomobile_multiarch": gomobile_main_binary_multiarch,
+            "//conditions:default": gomobile_main_binary,
+        }),
     )
     native.cc_library(
         name = gomobile_main_binary_cc_library,
         deps = [gomobile_main_binary_cc_import],
-        linkstatic = 1,
-        alwayslink = 1,
     )
     native.android_library(
         name = android_library_name,
