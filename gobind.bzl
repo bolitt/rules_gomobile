@@ -41,8 +41,8 @@ def _extract_objc_opts(kwargs):
 def _java_classname(pkg):
     return "/".join(pkg.split("."))
 
-def _add_file(ctx, go, files, *args):
-    files.append(go.actions.declare_file(genpath(ctx, *args)))
+def _append_gen_file(ctx, go, og, *f):
+    og.append(go.actions.declare_file(genpath(ctx, *f)))
 
 def _gen_filenames(importpath, java_package, objc_prefix):
     pkg_short_ = pkg_short(importpath)
@@ -126,8 +126,8 @@ def _gobind_multiarch_artefacts_impl(ctx):
 
     ctx.actions.run_shell(
         outputs = [outfile],
-        command = """
-        find bazel-out/ -type f -path 'bazel-out//{cpu}-*/bin/{pkg}*/{binary}' -exec cp -f {{}} {outfile} \;
+        command = """\
+        find bazel-out -type f -path 'bazel-out/{cpu}-*/bin/{pkg}*/{binary}' -exec cp -f {{}} {outfile} \;
         """.format(
             cpu = cpu,
             pkg = pkg,
@@ -325,7 +325,7 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
     native.cc_import(
         name = gomobile_main_binary_cc_import,
         shared_library = select({
-            "@co_znly_rules_gomobile//platform:gomobile_multiarch": gomobile_main_binary_multiarch,
+            "@co_znly_rules_gomobile//platform:multiarch": gomobile_main_binary_multiarch,
             "//conditions:default": gomobile_main_binary,
         }),
     )
@@ -486,6 +486,5 @@ def gobind(name, deps, java_package="", objc_prefix="", tags=[], **kwargs):
         )
 
     objcopts = _extract_objc_opts(kwargs)
-
     _gobind_java(name, groups, gobind_gen, _deps, **kwargs)
     _gobind_objc(name, groups, gobind_gen, _deps, objcopts, **kwargs)

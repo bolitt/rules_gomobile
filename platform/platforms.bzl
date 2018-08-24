@@ -17,7 +17,6 @@ _IOS_CPUS = {
     "arm64": "arm64",
 }
 
-_ANDROID_CROSSTOOL_TOP = "@androidndk//:toolchain-libcpp"
 _ANDROID_CPUS = {
     "386": "x86",
     "amd64": "x86_64",
@@ -69,7 +68,7 @@ def declare_platforms():
             )
 
     native.config_setting(
-        name = "gomobile_multiarch",
+        name = "multiarch",
         define_values = {
             "gomobile_multiarch": "true",
         },
