@@ -1,31 +1,23 @@
 workspace(name = "co_znly_rules_gomobile")
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
-git_repository(
-    name = "bazel_skylib",
-    remote = "https://github.com/bazelbuild/bazel-skylib.git",
-    tag = "0.5.0",  # change this to use a different release
-)
-
-git_repository(
-    name = "co_znly_rules_misc",
-    commit = "f44682b6765b5417c7df43c28e4fa6d7b7665ba1",
-    remote = "git@github.com:znly/rules_misc.git",
-)
-
-maybe(github,
-    name = "io_bazel_rules_go",
-    author = "znly",
-    project = "rules_go",
-    commit = "ff9cd1bc1d720e58ec61ae402e5ba7a893e98e01", # feature/core branch
-)
-
-load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
-go_rules_dependencies()
-go_register_toolchains()
-
 load("@co_znly_rules_gomobile//:repositories.bzl", "gomobile_repositories")
 gomobile_repositories()
 
 load("@co_znly_rules_misc//:repositories.bzl", "declare_repositories")
 declare_repositories()
+
+load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains", "go_download_sdk")
+go_rules_dependencies()
+
+go_download_sdk(
+    name = "go_sdk",
+    sdks = {
+        "darwin_amd64": ("go1.10.4-jni.darwin-amd64.tar.gz", "1096529e3ddc081ad7f9f6c902ee9da36cdcc74daece7287bc3d5502033b8079"),
+        "linux_amd64": ("go1.10.4-jni.linux-amd64.tar.gz", "91c43d52bbccb3fba5e0bc9efb0ddfafe6f558b1f499a33aab245b107d3349c0"),
+    },
+    urls = ["https://github.com/znly/go/releases/download/go1.10.4-jni/{}"],
+)
+
+go_register_toolchains()
+
+load("@build_bazel_rules_apple//apple:repositories.bzl", "apple_rules_dependencies")
+apple_rules_dependencies()
