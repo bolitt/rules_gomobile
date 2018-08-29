@@ -346,14 +346,14 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
     return android_library_name
 
 def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
-    gomobile_bind_library = slug(name, "objc", "gomobile_bind_library")
-    gomobile_main_cc_library = slug(name, "objc", "gomobile_main_cc_library")
-    gomobile_main_library = slug(name, "objc", "gomobile_main_library")
-    gomobile_main_binary = slug(name, "objc", "gomobile_main_binary")
-    gomobile_main_binary_multiarch = slug(name, "objc", "gomobile_main_binary", "multiarch")
+    gobind_main_binary = slug(name, "ios", "gobind")
+    gobind_main_binary_multiarch = slug(gobind_main_binary, "multiarch")
+    gobind_library = slug(gobind_main_binary, "library")
+    gobind_main_cc_library = slug(gobind_main_binary, "main_cc_library")
+    gobind_main_library = slug(gobind_main_binary, "main_library")
 
     native.cc_library(
-        name = gomobile_main_cc_library,
+        name = gobind_main_cc_library,
         hdrs = [
             groups["cc_hdrs_files"],
         ],
@@ -365,7 +365,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
     )
 
     go_library(
-        name = gomobile_main_library,
+        name = gobind_main_library,
         srcs = [
             groups["go_files"],
             groups["cc_files"],
@@ -382,7 +382,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
             "-Wno-shorten-64-to-32",
         ],
         cdeps = [
-            gomobile_main_cc_library,
+            gobind_main_cc_library,
         ],
         objc_enable_modules = 1,
         importpath = "main",
@@ -394,8 +394,8 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
     )
 
     go_binary(
-        name = gomobile_main_binary,
-        embed = [gomobile_main_library],
+        name = gobind_main_binary,
+        embed = [gobind_main_library],
         pure = "off",
         linkmode = "c-archive",
         visibility = ["//visibility:public"],
@@ -403,8 +403,8 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
     )
 
     gobind_multiarch_artefacts(
-        name = gomobile_main_binary_multiarch,
-        binary = gomobile_main_binary,
+        name = gobind_main_binary_multiarch,
+        binary = gobind_main_binary,
         extension = "a",
     )
 
@@ -415,8 +415,8 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
         alwayslink = 1,
         includes = ["."],
         archives = select({
-            "@co_znly_rules_gomobile//platform:multiarch": [gomobile_main_binary_multiarch],
-            "//conditions:default": [gomobile_main_binary],
+            "@co_znly_rules_gomobile//platform:multiarch": [gobind_main_binary_multiarch],
+            "//conditions:default": [gobind_main_binary],
         }),
         visibility = ["//visibility:public"],
         **objcopts
@@ -429,7 +429,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
         visibility = ["//visibility:public"],
     )
 
-    return gomobile_main_binary
+    return gobind_main_binary
 
 def gobind(name, deps, java_package="", objc_prefix="", tags=[], **kwargs):
     gopath_gen = slug(name, "gopath")
