@@ -2,9 +2,6 @@ workspace(name = "co_znly_rules_gomobile")
 load("@co_znly_rules_gomobile//:repositories.bzl", "gomobile_repositories")
 gomobile_repositories()
 
-load("@co_znly_rules_misc//:repositories.bzl", "declare_repositories")
-declare_repositories()
-
 load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains", "go_download_sdk")
 go_rules_dependencies()
 

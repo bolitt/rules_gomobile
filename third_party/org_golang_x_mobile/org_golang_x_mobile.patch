@@ -1,0 +1,199 @@
+diff -ruN ./bind/BUILD.bazel ./bind/BUILD.bazel
+--- ./bind/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./bind/BUILD.bazel	2018-06-23 23:34:24.000000000 +0200
+@@ -0,0 +1,26 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
++
++go_library(
++    name = "go_default_library",
++    srcs = [
++        "bind.go",
++        "gen.go",
++        "genclasses.go",
++        "gengo.go",
++        "genjava.go",
++        "genobjc.go",
++        "genobjcw.go",
++        "printer.go",
++        "types.go",
++    ],
++    data = [
++        "seq.go.support",
++    ],
++    importpath = "golang.org/x/mobile/bind",
++    visibility = ["//visibility:public"],
++    deps = [
++        "//internal/importers:go_default_library",
++        "//internal/importers/java:go_default_library",
++        "//internal/importers/objc:go_default_library",
++    ],
++)
+diff -ruN ./bind/java/BUILD.bazel ./bind/java/BUILD.bazel
+--- ./bind/java/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./bind/java/BUILD.bazel	2018-06-23 23:34:53.000000000 +0200
+@@ -0,0 +1,24 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
++
++go_library(
++    name = "go_default_library",
++    srcs = [
++        "context_android.c",
++        "context_android.go",
++        "doc.go",
++        "seq_android.h",
++    ],
++    cgo = True,
++    importpath = "golang.org/x/mobile/bind/java",
++    visibility = ["//visibility:public"],
++    deps = select({
++        "@io_bazel_rules_go//go/platform:android": [
++            "//internal/mobileinit:go_default_library",
++        ],
++        "//conditions:default": [],
++    }),
++    data = glob([
++        "*.java",
++        "*.support",
++    ]),
++)
+diff -ruN ./bind/objc/BUILD.bazel ./bind/objc/BUILD.bazel
+--- ./bind/objc/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./bind/objc/BUILD.bazel	2018-06-23 23:34:32.000000000 +0200
+@@ -0,0 +1,16 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
++
++go_library(
++    name = "go_default_library",
++    srcs = [
++        "doc.go",
++        "ref.h",
++        "seq_darwin.h",
++    ],
++    data = [
++        "seq_darwin.go.support",
++        "seq_darwin.m.support",
++    ],
++    importpath = "golang.org/x/mobile/bind/objc",
++    visibility = ["//visibility:public"],
++)
+diff -ruN ./bind/seq/BUILD.bazel ./bind/seq/BUILD.bazel
+--- ./bind/seq/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./bind/seq/BUILD.bazel	2018-06-23 23:34:37.000000000 +0200
+@@ -0,0 +1,13 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
++
++go_library(
++    name = "go_default_library",
++    srcs = [
++        "ref.go",
++        "seq.go",
++        "string.go",
++    ],
++    importpath = "golang.org/x/mobile/bind/seq",
++    visibility = ["//visibility:public"],
++    deps = ["//internal/mobileinit:go_default_library"],
++)
+diff -ruN ./cmd/gobind/BUILD.bazel ./cmd/gobind/BUILD.bazel
+--- ./cmd/gobind/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./cmd/gobind/BUILD.bazel	2018-06-23 23:41:04.000000000 +0200
+@@ -0,0 +1,24 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
++
++go_library(
++    name = "go_default_library",
++    srcs = [
++        "doc.go",
++        "gen.go",
++        "main.go",
++    ],
++    importpath = "golang.org/x/mobile/cmd/gobind",
++    visibility = ["//visibility:private"],
++    deps = [
++        "//bind:go_default_library",
++        "//internal/importers:go_default_library",
++        "//internal/importers/java:go_default_library",
++        "//internal/importers/objc:go_default_library",
++    ],
++)
++
++go_binary(
++    name = "gobind",
++    embed = [":go_default_library"],
++    visibility = ["//visibility:public"],
++)
+diff -ruN ./internal/binres/BUILD.bazel ./internal/binres/BUILD.bazel
+--- ./internal/binres/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./internal/binres/BUILD.bazel	2018-06-23 23:41:10.000000000 +0200
+@@ -0,0 +1,16 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
++
++go_library(
++    name = "go_default_library",
++    srcs = [
++        "arsc.go",
++        "binres.go",
++        "binres_string.go",
++        "node.go",
++        "pool.go",
++        "sdk.go",
++        "table.go",
++    ],
++    importpath = "golang.org/x/mobile/internal/binres",
++    visibility = ["//:__subpackages__"],
++)
+diff -ruN ./internal/importers/BUILD.bazel ./internal/importers/BUILD.bazel
+--- ./internal/importers/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./internal/importers/BUILD.bazel	2018-06-23 23:41:28.000000000 +0200
+@@ -0,0 +1,8 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
++
++go_library(
++    name = "go_default_library",
++    srcs = ["ast.go"],
++    importpath = "golang.org/x/mobile/internal/importers",
++    visibility = ["//:__subpackages__"],
++)
+diff -ruN ./internal/importers/java/BUILD.bazel ./internal/importers/java/BUILD.bazel
+--- ./internal/importers/java/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./internal/importers/java/BUILD.bazel	2018-06-23 23:41:22.000000000 +0200
+@@ -0,0 +1,9 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
++
++go_library(
++    name = "go_default_library",
++    srcs = ["java.go"],
++    importpath = "golang.org/x/mobile/internal/importers/java",
++    visibility = ["//:__subpackages__"],
++    deps = ["//internal/importers:go_default_library"],
++)
+diff -ruN ./internal/importers/objc/BUILD.bazel ./internal/importers/objc/BUILD.bazel
+--- ./internal/importers/objc/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./internal/importers/objc/BUILD.bazel	2018-06-23 23:41:33.000000000 +0200
+@@ -0,0 +1,9 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
++
++go_library(
++    name = "go_default_library",
++    srcs = ["objc.go"],
++    importpath = "golang.org/x/mobile/internal/importers/objc",
++    visibility = ["//:__subpackages__"],
++    deps = ["//internal/importers:go_default_library"],
++)
+diff -ruN ./internal/mobileinit/BUILD.bazel ./internal/mobileinit/BUILD.bazel
+--- ./internal/mobileinit/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
++++ ./internal/mobileinit/BUILD.bazel	2018-06-23 23:41:44.000000000 +0200
+@@ -0,0 +1,14 @@
++load("@io_bazel_rules_go//go:def.bzl", "go_library")
++
++go_library(
++    name = "go_default_library",
++    srcs = [
++        "ctx_android.go",
++        "mobileinit.go",
++        "mobileinit_android.go",
++        "mobileinit_ios.go",
++    ],
++    cgo = True,
++    importpath = "golang.org/x/mobile/internal/mobileinit",
++    visibility = ["//:__subpackages__"],
++)
