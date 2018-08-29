@@ -127,12 +127,13 @@ def _gobind_multiarch_artefacts_impl(ctx):
     ctx.actions.run_shell(
         outputs = [outfile],
         command = """\
-        find bazel-out -type f -path 'bazel-out/{cpu}-*/bin/{pkg}*/{binary}' -exec cp -f {{}} {outfile} \;
+        find bazel-out -type f -path 'bazel-out/{cpu}-{compilation_mode}/bin/{pkg}*/{binary}' -exec cp -f {{}} {outfile} \;
         """.format(
-            cpu = cpu,
-            pkg = pkg,
             binary = binary_basename,
+            compilation_mode = ctx.var["COMPILATION_MODE"],
+            cpu = cpu,
             outfile = outfile.path,
+            pkg = pkg,
         ),
         execution_requirements = {
             "no-sandbox": "1",
