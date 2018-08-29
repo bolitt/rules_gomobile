@@ -350,6 +350,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
     gomobile_main_cc_library = slug(name, "objc", "gomobile_main_cc_library")
     gomobile_main_library = slug(name, "objc", "gomobile_main_library")
     gomobile_main_binary = slug(name, "objc", "gomobile_main_binary")
+    gomobile_main_binary_multiarch = slug(name, "objc", "gomobile_main_binary", "multiarch")
 
     native.cc_library(
         name = gomobile_main_cc_library,
@@ -401,13 +402,22 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
         **kwargs
     )
 
+    gobind_multiarch_artefacts(
+        name = gomobile_main_binary_multiarch,
+        binary = gomobile_main_binary,
+        extension = "a",
+    )
+
     # objc deps can only have underscores and dashes
     native.objc_import(
         name = slug(name, "objc", token="_"),
         hdrs = [groups["darwin_public_hdrs"]],
         alwayslink = 1,
         includes = ["."],
-        archives = [gomobile_main_binary],
+        archives = select({
+            "@co_znly_rules_gomobile//platform:multiarch": [gomobile_main_binary_multiarch],
+            "//conditions:default": [gomobile_main_binary],
+        }),
         visibility = ["//visibility:public"],
         **objcopts
     )
