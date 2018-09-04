@@ -126,8 +126,9 @@ def _gobind_multiarch_artefacts_impl(ctx):
 
     ctx.actions.run_shell(
         outputs = [outfile],
+        mnemonic = "GoBindMultiarch",
         command = """\
-        find bazel-out -type f -path 'bazel-out/{cpu}-{compilation_mode}/bin/{pkg}*/{binary}' -exec cp -f {{}} {outfile} \;
+        find bazel-out/{cpu}-{compilation_mode}/bin -type f -path 'bazel-out/{cpu}-{compilation_mode}/bin/{pkg}*/{binary}' -exec cp -f {{}} {outfile} \;
         """.format(
             binary = binary_basename,
             compilation_mode = ctx.var["COMPILATION_MODE"],
@@ -306,6 +307,7 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
             "@org_golang_x_mobile//bind/seq:go_default_library",
         ],
     )
+
     go_binary(
         name = gomobile_main_binary,
         embed = [gomobile_main_library],
