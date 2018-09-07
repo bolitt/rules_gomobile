@@ -24,6 +24,18 @@ _OBJC_ATTRS = {
     "xibs": None,
 }
 
+_CPUS = {
+    "armeabi-v7a": "arm",
+    "arm64-v8a": "arm64",
+    "x86_64": "amd64",
+    "x86": "386",
+
+    "ios_armv7": "arm",
+    "ios_arm64": "arm64",
+    "ios_i386": "386",
+    "ios_x86_64": "amd64",
+}
+
 def _filter(l):
     return [v for v in l if v]
 
@@ -124,18 +136,16 @@ def _gobind_multiarch_artefacts_impl(ctx):
     outfile_name = "%s/%s%s" % (cpu, pkg, binary_basename)
     outfile = ctx.actions.declare_file(outfile_name)
 
+    inpath = ctx.file.binary.path
+    parts = inpath.split("/")
+    parts[1] = "%s-%s" % (cpu, ctx.var["COMPILATION_MODE"])
+    parts[-2] = ctx.attr.mode_pattern % _CPUS[cpu]
+    inpath = "/".join(parts)
+
     ctx.actions.run_shell(
         outputs = [outfile],
         mnemonic = "GoBindMultiarch",
-        command = """\
-        find bazel-out/{cpu}-{compilation_mode}/bin -type f -path 'bazel-out/{cpu}-{compilation_mode}/bin/{pkg}*/{binary}' -exec cp -f {{}} {outfile} \;
-        """.format(
-            binary = binary_basename,
-            compilation_mode = ctx.var["COMPILATION_MODE"],
-            cpu = cpu,
-            outfile = outfile.path,
-            pkg = pkg,
-        ),
+        command = """cp {} {}""".format(inpath, outfile.path),
         execution_requirements = {
             "no-sandbox": "1",
         },
@@ -150,6 +160,7 @@ gobind_multiarch_artefacts = rule(
     _gobind_multiarch_artefacts_impl,
     attrs = {
         "binary": attr.label(allow_single_file = True),
+        "mode_pattern": attr.string(mandatory = True),
         "extension": attr.string(mandatory = True),
     },
     output_to_genfiles = True,
@@ -285,6 +296,8 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
         defines = [
             "__GOBIND_ANDROID__",
         ],
+        alwayslink = 1,
+        linkstatic = 1,
         visibility = ["//visibility:private"],
     )
 
@@ -322,6 +335,7 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
     gobind_multiarch_artefacts(
         name = gomobile_main_binary_multiarch,
         binary = gomobile_main_binary,
+        mode_pattern = "android_%s_c-shared",
         extension = "so",
     )
 
@@ -407,6 +421,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
 
     gobind_multiarch_artefacts(
         name = gobind_main_binary_multiarch,
+        mode_pattern = "darwin_%s_c-archive",
         binary = gobind_main_binary,
         extension = "a",
     )
