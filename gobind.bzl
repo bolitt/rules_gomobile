@@ -147,6 +147,8 @@ def _gobind_multiarch_artefacts_impl(ctx):
         mnemonic = "GoBindMultiarch",
         command = """cp {} {}""".format(inpath, outfile.path),
         execution_requirements = {
+            "no-cache": "1",
+            "no-remote": "1",
             "no-sandbox": "1",
         },
     )
