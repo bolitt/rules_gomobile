@@ -282,8 +282,7 @@ _gobind = rule(
 def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
     gomobile_main_cc_library = slug(name, "java", "gomobile_main_cc_library")
     gomobile_main_library = slug(name, "java", "gomobile_main_library")
-    # gomobile_main_binary = slug(name, "java", "gomobile_main_binary")
-    gomobile_main_binary = "gojni"
+    gomobile_main_binary = slug(name, "java", "gomobile_main_binary")
     gomobile_main_binary_multiarch = slug(name, "java", "gomobile_main_binary", "multiarch")
     gomobile_main_binary_cc_import = slug(name, "java", "cc_import")
     gomobile_main_binary_cc_library = slug(name, "java", "cc_library")
@@ -326,6 +325,7 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
     go_binary(
         name = gomobile_main_binary,
         embed = [gomobile_main_library],
+        out = "libgojni.so",
         pure = "off",
         linkmode = "c-shared",
         visibility = ["//visibility:public"],
