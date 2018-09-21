@@ -139,7 +139,6 @@ def _gobind_multiarch_artefacts_impl(ctx):
     inpath = ctx.file.binary.path
     parts = inpath.split("/")
     parts[1] = "%s-%s" % (cpu, ctx.var["COMPILATION_MODE"])
-    parts[-2] = ctx.attr.mode_pattern % _CPUS[cpu]
     inpath = "/".join(parts)
 
     ctx.actions.run_shell(
@@ -162,7 +161,6 @@ gobind_multiarch_artefacts = rule(
     _gobind_multiarch_artefacts_impl,
     attrs = {
         "binary": attr.label(allow_single_file = True),
-        "mode_pattern": attr.string(mandatory = True),
         "extension": attr.string(mandatory = True),
     },
     output_to_genfiles = True,
@@ -337,7 +335,6 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
     gobind_multiarch_artefacts(
         name = gomobile_main_binary_multiarch,
         binary = gomobile_main_binary,
-        mode_pattern = "android_%s_c-shared",
         extension = "so",
     )
 
@@ -415,6 +412,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
     go_binary(
         name = gobind_main_binary,
         embed = [gobind_main_library],
+        out = gobind_main_binary + ".a",
         pure = "off",
         linkmode = "c-archive",
         visibility = ["//visibility:public"],
@@ -423,7 +421,6 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
 
     gobind_multiarch_artefacts(
         name = gobind_main_binary_multiarch,
-        mode_pattern = "darwin_%s_c-archive",
         binary = gobind_main_binary,
         extension = "a",
     )
