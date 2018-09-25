@@ -1,0 +1,26 @@
+From 6595c135a1f4ce9f7224f4450f688ff3669631d0 Mon Sep 17 00:00:00 2001
+From: Steeve Morin <steeve.morin@gmail.com>
+Date: Sat, 3 Feb 2018 03:04:45 +0100
+Subject: [PATCH] bind/genobjc: always include ref.h in generated .objc.h
+ headers
+
+Signed-off-by: Steeve Morin <steeve.morin@gmail.com>
+---
+ bind/genobjc.go | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/bind/genobjc.go b/bind/genobjc.go
+index d67f272..4bcd2fd 100644
+--- a/bind/genobjc.go
++++ b/bind/genobjc.go
+@@ -149,6 +149,7 @@ func (g *ObjcGen) GenH() error {
+ 	for _, m := range g.modules {
+ 		g.Printf("@import %s;\n", m)
+ 	}
++	g.Printf("#include \"ref.h\"\n\n")
+ 	if g.Pkg != nil {
+ 		g.Printf("#include \"Universe.objc.h\"\n\n")
+ 	}
+-- 
+2.19.0
+
