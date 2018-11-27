@@ -19,8 +19,8 @@ def gomobile_repositories():
     )
     _maybe(http_archive,
         name = "org_golang_x_mobile",
-        urls = ["https://codeload.github.com/golang/mobile/tar.gz/6621de06e1e9d52c38a8c542770bdbeac9ecfef6"],
-        strip_prefix = "mobile-6621de06e1e9d52c38a8c542770bdbeac9ecfef6",
+        urls = ["https://codeload.github.com/golang/mobile/tar.gz/a27dd33d354d004b2de14a791df5af8a00f68b8e"],
+        strip_prefix = "mobile-a27dd33d354d004b2de14a791df5af8a00f68b8e",
         type = "tar.gz",
         patch_tool = "git",
         patch_args = ["apply"],
