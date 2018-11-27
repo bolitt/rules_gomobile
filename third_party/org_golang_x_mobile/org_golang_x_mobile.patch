@@ -181,7 +181,7 @@ diff -ruN ./internal/importers/objc/BUILD.bazel ./internal/importers/objc/BUILD.
 +)
 diff -ruN ./internal/mobileinit/BUILD.bazel ./internal/mobileinit/BUILD.bazel
 --- ./internal/mobileinit/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./internal/mobileinit/BUILD.bazel	2018-06-23 23:41:44.000000000 +0200
++++ ./internal/mobileinit/BUILD.bazel	2018-09-27 17:13:39.000000000 +0200
 @@ -0,0 +1,14 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library")
 +
@@ -195,5 +195,5 @@ diff -ruN ./internal/mobileinit/BUILD.bazel ./internal/mobileinit/BUILD.bazel
 +    ],
 +    cgo = True,
 +    importpath = "golang.org/x/mobile/internal/mobileinit",
-+    visibility = ["//:__subpackages__"],
++    visibility = ["//visibility:public"],
 +)
