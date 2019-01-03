@@ -1,6 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_path", "GoLibrary", "GoSource", "GoPath", "go_context")
 load("@co_znly_rules_gomobile//:common.bzl", "slug", "gen_include_path")
 load("@co_znly_rules_gomobile//:common.bzl", "pkg_short", "genpath", "run_ex")
+load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 
 _SUPPORT_FILES_JAVA = [
     "go/error.java",
@@ -128,7 +129,8 @@ def _gen_exported_types(ctx, go, outputs):
             outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", _java_classname(ctx.attr.java_package), pkg_short_, type_ + ".java")))
 
 def _gobind_multiarch_artefacts_impl(ctx):
-    cpu = ctx.fragments.cpp.cpu
+    cc_toolchain = find_cpp_toolchain(ctx)
+    cpu = cc_toolchain.cpu
     binary_basename = ctx.file.binary.basename[:-len(ctx.file.binary.extension)] + ctx.attr.extension
     pkg = ctx.attr.binary.label.package
     if pkg:
@@ -161,6 +163,9 @@ gobind_multiarch_artefacts = rule(
     _gobind_multiarch_artefacts_impl,
     attrs = {
         "binary": attr.label(allow_single_file = True),
+        "_cc_toolchain": attr.label(
+            default = "@bazel_tools//tools/cpp:current_cc_toolchain",
+        ),
         "extension": attr.string(mandatory = True),
     },
     output_to_genfiles = True,
