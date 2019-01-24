@@ -7,20 +7,19 @@ def _maybe(repo_rule, name, **kwargs):
 def gomobile_repositories():
     _maybe(http_archive,
         name = "bazel_skylib",
-        urls = ["https://codeload.github.com/bazelbuild/bazel-skylib/tar.gz/0.5.0"],
-        strip_prefix = "bazel-skylib-0.5.0",
+        urls = ["https://codeload.github.com/bazelbuild/bazel-skylib/tar.gz/0.6.0"],
+        strip_prefix = "bazel-skylib-0.6.0",
         type = "tar.gz",
     )
     _maybe(http_archive,
         name = "io_bazel_rules_go",
-        urls = ["https://codeload.github.com/bazelbuild/rules_go/tar.gz/642cc71323c4e046ee5bd3eaa29f1ca10a4e9e04"],
-        strip_prefix = "rules_go-642cc71323c4e046ee5bd3eaa29f1ca10a4e9e04",
-        type = "tar.gz",
+        url = "https://github.com/bazelbuild/rules_go/releases/download/0.16.6/rules_go-0.16.6.tar.gz",
+        sha256 = "ade51a315fa17347e5c31201fdc55aa5ffb913377aa315dceb56ee9725e620ee",
     )
     _maybe(http_archive,
         name = "org_golang_x_mobile",
-        urls = ["https://codeload.github.com/golang/mobile/tar.gz/a27dd33d354d004b2de14a791df5af8a00f68b8e"],
-        strip_prefix = "mobile-a27dd33d354d004b2de14a791df5af8a00f68b8e",
+        urls = ["https://codeload.github.com/golang/mobile/tar.gz/dc0771356504be3250bf83d2383003b94fdb4796"],
+        strip_prefix = "mobile-dc0771356504be3250bf83d2383003b94fdb4796",
         type = "tar.gz",
         patch_tool = "git",
         patch_args = ["apply"],
@@ -31,8 +30,8 @@ def gomobile_repositories():
     )
     _maybe(http_archive,
         name = "build_bazel_rules_apple",
-        urls = ["https://codeload.github.com/bazelbuild/rules_apple/tar.gz/0.7.0"],
-        strip_prefix = "rules_apple-0.7.0",
+        urls = ["https://codeload.github.com/bazelbuild/rules_apple/tar.gz/0.13.0"],
+        strip_prefix = "rules_apple-0.13.0",
         type = "tar.gz",
     )
     _maybe(native.android_sdk_repository,
