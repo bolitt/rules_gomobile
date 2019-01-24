@@ -223,7 +223,7 @@ def _gobind_impl(ctx):
         outputs.darwin_public_hdrs
 
     run_ex(ctx,
-        inputs = go.sdk_files + go.sdk_tools + go.crosstool + ctx.files.go_path,
+        inputs = go.sdk_files + ctx.files.go_path,
         outputs = outs,
         mnemonic = "GoBind",
         executable = ctx.executable._gobind,
