@@ -18,14 +18,13 @@ def gomobile_repositories():
     )
     _maybe(http_archive,
         name = "org_golang_x_mobile",
-        urls = ["https://codeload.github.com/golang/mobile/tar.gz/dc0771356504be3250bf83d2383003b94fdb4796"],
-        strip_prefix = "mobile-dc0771356504be3250bf83d2383003b94fdb4796",
+        urls = ["https://codeload.github.com/golang/mobile/tar.gz/a42111704963f4f0d1266674e1e97489aa8dcca0"],
+        strip_prefix = "mobile-a42111704963f4f0d1266674e1e97489aa8dcca0",
         type = "tar.gz",
         patch_tool = "git",
         patch_args = ["apply"],
         patches = [
             "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/org_golang_x_mobile.patch",
-            "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/0001-bind-genobjc-always-include-ref.h-in-generated-.objc.patch",
         ],
     )
     _maybe(http_archive,
