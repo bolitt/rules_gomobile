@@ -208,7 +208,6 @@ def _gobind_impl(ctx):
     }
 
     outs = outputs.go_files + \
-           outputs.cc_files + \
            outputs.cc_hdrs_files + \
            outputs.android_go_files + \
            outputs.android_cc_files + \
@@ -243,7 +242,6 @@ def _gobind_impl(ctx):
         ),
         OutputGroupInfo(
             go_files = outputs.go_files,
-            cc_files = outputs.cc_files,
             cc_hdrs_files = outputs.cc_hdrs_files,
             android_go_files = outputs.android_go_files,
             android_cc_files = outputs.android_cc_files,
@@ -305,7 +303,6 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
         name = gomobile_main_library,
         srcs = [
             groups["go_files"],
-            groups["cc_files"],
             groups["android_cc_files"],
             groups["android_go_files"],
         ],
@@ -385,7 +382,6 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
         name = gobind_main_library,
         srcs = [
             groups["go_files"],
-            groups["cc_files"],
             groups["darwin_go_files"],
             groups["darwin_cc_files"],
             groups["darwin_public_hdrs"],
@@ -482,7 +478,6 @@ def gobind(name, deps, java_package = "", objc_prefix = "", tags = [], **kwargs)
 
     go_files = slug(name, "go_files")
     go_main = slug(name, "go_main")
-    cc_files = slug(name, "cc_files")
     cc_hdrs_files = slug(name, "cc_files")
     android_go_files = slug(name, "android_go_files")
     android_cc_files = slug(name, "android_cc_files")
@@ -494,7 +489,6 @@ def gobind(name, deps, java_package = "", objc_prefix = "", tags = [], **kwargs)
     _group_names = [
         "go_main",
         "go_files",
-        "cc_files",
         "cc_hdrs_files",
         "android_go_files",
         "android_cc_files",
