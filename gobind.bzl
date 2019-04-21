@@ -86,7 +86,6 @@ def _gen_pkg_files(ctx, go, pkg, outputs):
 
     for filename in [files.android_hdr, files.android_c]:
         outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", filename)))
-    outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", files.android_class)))
 
     outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.go_main)))
 
@@ -98,7 +97,6 @@ def _gen_universe_files(ctx, go, outputs):
     outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gobind", files.darwin_public_hdr)))
     for filename in [files.android_hdr, files.android_c]:
         outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", filename)))
-    outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", "go", "Universe.java")))
 
 def _gen_seq_files(ctx, go, outputs):
     outputs.cc_hdrs_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq.h")))
@@ -109,19 +107,9 @@ def _gen_seq_files(ctx, go, outputs):
         outputs.android_cc_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq_android" + ext)))
     outputs.android_go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq_android.go")))
     outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "seq.go")))
-    outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", "go", "Seq.java")))
 
 def _gen_support_files(ctx, go, outputs):
-    for file in _SUPPORT_FILES_JAVA:
-        outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", file)))
     outputs.darwin_public_hdrs.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "ref.h")))
-
-def _gen_exported_types(ctx, go, outputs):
-    for dep, types_str in ctx.attr.deps.items():
-        lib = dep[GoLibrary]
-        pkg_short_ = pkg_short(lib.importpath)
-        for type_ in _filter(types_str.split(",")):
-            outputs.android_java_files.append(go.actions.declare_file(genpath(ctx, "java", _java_classname(ctx.attr.java_package), pkg_short_, type_ + ".java")))
 
 def _gobind_multiarch_artefacts_impl(ctx):
     cc_toolchain = find_cpp_toolchain(ctx)
@@ -193,9 +181,18 @@ def _gobind_impl(ctx):
     _gen_universe_files(ctx, go, outputs)
     _gen_seq_files(ctx, go, outputs)
     _gen_support_files(ctx, go, outputs)
-    _gen_exported_types(ctx, go, outputs)
 
-    outputs.go_files.append(go.actions.declare_file(genpath(ctx, "src", "gobind", "go_main.go")))
+    srcjar = ctx.actions.declare_file("%s.gobind.srcjar" % ctx.label.name)
+    outputs.android_java_files.append(srcjar)
+    outputs.go_files.append(
+        go.actions.declare_file(genpath(ctx, "src", "gobind", "go_main.go")),
+    )
+
+    outdir = "/".join([
+        ctx.genfiles_dir.path,
+        ctx.label.package,
+        ctx.label.name,
+    ])
 
     env = {
         "GOROOT": "${PWD}/" + go.root,
@@ -221,18 +218,23 @@ def _gobind_impl(ctx):
         inputs = go.sdk_files + ctx.files.go_path,
         outputs = outs,
         mnemonic = "GoBind",
-        executable = ctx.executable._gobind,
+        executable = ctx.executable._gobind_wrapper,
         env = env,
         arguments = [
+            "-gobind=" + ctx.executable._gobind.path,
+            "-zipper=" + ctx.executable._zipper.path,
+            "-outdir=" + outdir,
+            "-outjar=" + srcjar.path,
+            "--",
             "-javapkg=" + ctx.attr.java_package,
             "-prefix=" + ctx.attr.objc_prefix,
             "-tags=" + ",".join(ctx.attr.go_tags),
-            "-outdir=" + "/".join([
-                ctx.genfiles_dir.path,
-                ctx.label.package,
-                ctx.label.name,
-            ]),
+            "-outdir=" + outdir,
         ] + packages,
+        tools = [
+            ctx.executable._gobind,
+            ctx.executable._zipper,
+        ],
     )
 
     return [
@@ -255,7 +257,7 @@ def _gobind_impl(ctx):
 _gobind = rule(
     _gobind_impl,
     attrs = {
-        "deps": attr.label_keyed_string_dict(providers = [GoLibrary]),
+        "deps": attr.label_list(providers = [GoLibrary]),
         "go_path": attr.label(providers = [GoPath]),
         "go_tags": attr.string_list(),
         "java_package": attr.string(mandatory = True),
@@ -270,6 +272,16 @@ _gobind = rule(
             executable = True,
             cfg = "host",
             default = "@org_golang_x_mobile//cmd/gobind:gobind",
+        ),
+        "_gobind_wrapper": attr.label(
+            executable = True,
+            cfg = "host",
+            default = "@co_znly_rules_gomobile//:gobind_wrapper",
+        ),
+        "_zipper": attr.label(
+            default = "@bazel_tools//tools/zip:zipper",
+            cfg = "host",
+            executable = True,
         ),
     },
     output_to_genfiles = True,
@@ -312,7 +324,7 @@ def _gobind_java(name, groups, gobind_gen, deps, **kwargs):
         ],
         importpath = "main",
         visibility = ["//visibility:private"],
-        deps = deps.keys() + [
+        deps = deps + [
             "@org_golang_x_mobile//bind/java:go_default_library",
             "@org_golang_x_mobile//bind/seq:go_default_library",
         ],
@@ -401,7 +413,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
         objc_enable_modules = 1,
         importpath = "main",
         visibility = ["//visibility:private"],
-        deps = deps.keys() + [
+        deps = deps + [
             "@org_golang_x_mobile//bind/java:go_default_library",
             "@org_golang_x_mobile//bind/seq:go_default_library",
         ],
@@ -451,17 +463,13 @@ def gobind(name, deps, java_package = "", objc_prefix = "", tags = [], **kwargs)
     go_path(
         name = gopath_gen,
         mode = "link",
-        deps = deps.keys() + [
+        deps = deps + [
             "@org_golang_x_mobile//bind:go_default_library",
             "@org_golang_x_mobile//bind/objc:go_default_library",
             "@org_golang_x_mobile//bind/java:go_default_library",
             "@org_golang_x_mobile//bind/seq:go_default_library",
         ],
     )
-
-    _deps = {}
-    for dep, exported_types in deps.items():
-        _deps[dep] = ",".join(exported_types)
 
     gobind_gen = slug(name, "gobind")
     _gobind(
@@ -473,7 +481,7 @@ def gobind(name, deps, java_package = "", objc_prefix = "", tags = [], **kwargs)
             "@io_bazel_rules_go//go/platform:darwin": ["ios"],
             "//conditions:default": [],
         }),
-        deps = _deps,
+        deps = deps,
     )
 
     go_files = slug(name, "go_files")
@@ -509,5 +517,5 @@ def gobind(name, deps, java_package = "", objc_prefix = "", tags = [], **kwargs)
         )
 
     objcopts = _extract_objc_opts(kwargs)
-    _gobind_java(name, groups, gobind_gen, _deps, **kwargs)
-    _gobind_objc(name, groups, gobind_gen, _deps, objcopts, **kwargs)
+    _gobind_java(name, groups, gobind_gen, deps, **kwargs)
+    _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs)
