@@ -1,6 +1,6 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_path", "GoLibrary", "GoSource", "GoPath", "go_context")
-load("@co_znly_rules_gomobile//:common.bzl", "slug", "gen_include_path")
-load("@co_znly_rules_gomobile//:common.bzl", "pkg_short", "genpath", "run_ex")
+load("@io_bazel_rules_go//go:def.bzl", "GoLibrary", "GoPath", "GoSource", "go_binary", "go_context", "go_library", "go_path")
+load("@co_znly_rules_gomobile//:common.bzl", "gen_include_path", "slug")
+load("@co_znly_rules_gomobile//:common.bzl", "genpath", "pkg_short", "run_ex")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 
 _SUPPORT_FILES_JAVA = [
@@ -30,7 +30,6 @@ _CPUS = {
     "arm64-v8a": "arm64",
     "x86_64": "amd64",
     "x86": "386",
-
     "ios_armv7": "arm",
     "ios_arm64": "arm64",
     "ios_i386": "386",
@@ -64,11 +63,8 @@ def _gen_filenames(importpath, java_package, objc_prefix):
     return struct(
         importpath = importpath,
         pkg_short = pkg_short_,
-
         hdr = pkg_short_ + ".h",
-
         go_main = "go_" + pkg_short_ + "main.go",
-
         android_hdr = pkg_short_ + "_android.h",
         android_c = pkg_short_ + "_android.c",
         android_class = "/".join([
@@ -76,8 +72,7 @@ def _gen_filenames(importpath, java_package, objc_prefix):
             pkg_short_,
             pkg_short_title + ".java",
         ]),
-
-        darwin_hdr =  pkg_short_ + "_darwin.h",
+        darwin_hdr = pkg_short_ + "_darwin.h",
         darwin_m = objc_prefix_ + pkg_short_title + "_darwin.m",
         darwin_public_hdr = objc_prefix_ + pkg_short_title + ".objc.h",
     )
@@ -213,16 +208,17 @@ def _gobind_impl(ctx):
     }
 
     outs = outputs.go_files + \
-        outputs.cc_files + \
-        outputs.cc_hdrs_files + \
-        outputs.android_go_files + \
-        outputs.android_cc_files + \
-        outputs.android_java_files + \
-        outputs.darwin_go_files + \
-        outputs.darwin_cc_files + \
-        outputs.darwin_public_hdrs
+           outputs.cc_files + \
+           outputs.cc_hdrs_files + \
+           outputs.android_go_files + \
+           outputs.android_cc_files + \
+           outputs.android_java_files + \
+           outputs.darwin_go_files + \
+           outputs.darwin_cc_files + \
+           outputs.darwin_public_hdrs
 
-    run_ex(ctx,
+    run_ex(
+        ctx,
         inputs = go.sdk_files + ctx.files.go_path,
         outputs = outs,
         mnemonic = "GoBind",
@@ -397,7 +393,8 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
         cgo = True,
         objc = True,
         copts = [
-            "-x", "objective-c",
+            "-x",
+            "objective-c",
             "-fmodules",
             "-fobjc-arc",
             "-Wno-shorten-64-to-32",
@@ -432,7 +429,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
 
     # objc deps can only have underscores and dashes
     native.objc_import(
-        name = slug(name, "objc", token="_"),
+        name = slug(name, "objc", token = "_"),
         hdrs = [groups["darwin_public_hdrs"]],
         alwayslink = 1,
         includes = ["."],
@@ -445,7 +442,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
     )
 
     native.filegroup(
-        name = slug(name, "objc_hdrs", token="_"),
+        name = slug(name, "objc_hdrs", token = "_"),
         srcs = [gobind_gen],
         output_group = "darwin_public_hdrs",
         visibility = ["//visibility:public"],
@@ -453,7 +450,7 @@ def _gobind_objc(name, groups, gobind_gen, deps, objcopts, **kwargs):
 
     return gobind_main_binary
 
-def gobind(name, deps, java_package="", objc_prefix="", tags=[], **kwargs):
+def gobind(name, deps, java_package = "", objc_prefix = "", tags = [], **kwargs):
     gopath_gen = slug(name, "gopath")
     go_path(
         name = gopath_gen,

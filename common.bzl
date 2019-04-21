@@ -7,10 +7,10 @@ def genpath(ctx, *args):
 def pkg_short(importpath):
     return importpath.split("/")[-1]
 
-def slug(*args, token="."):
+def slug(*args, token = "."):
     return token.join(args)
 
-def run_ex(ctx, env=None, executable=None, arguments=None, **kwargs):
+def run_ex(ctx, env = None, executable = None, arguments = None, **kwargs):
     exports = " && ".join(["export %s=\"%s\"" % (k, v) for k, v in env.items()])
     command = exports + " && " + executable.path + " $@"
     kwargs.update({
