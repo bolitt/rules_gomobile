@@ -26,15 +26,23 @@ build:android_arm64     --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
 build:android_arm64     --platforms=@co_znly_rules_gomobile//platform:android_arm64
 
 build:ios_arm           --platforms=@co_znly_rules_gomobile//platform:ios_arm
+build:ios_arm           --apple_platform_type=ios
+build:ios_arm           --ios_multi_cpus=armv7
 build:ios_arm           --cpu=ios_armv7
 
 build:ios_arm64         --platforms=@co_znly_rules_gomobile//platform:ios_arm64
+build:ios_arm64         --apple_platform_type=ios
+build:ios_arm64         --ios_multi_cpus=arm64
 build:ios_arm64         --cpu=ios_arm64
 
 build:ios_386           --platforms=@co_znly_rules_gomobile//platform:ios_386
+build:ios_386           --apple_platform_type=ios
+build:ios_386           --ios_multi_cpus=i386
 build:ios_386           --cpu=ios_i386
 
 build:ios_amd64         --platforms=@co_znly_rules_gomobile//platform:ios_amd64
+build:ios_amd64         --apple_platform_type=ios
+build:ios_amd64         --ios_multi_cpus=x86_64
 build:ios_amd64         --cpu=ios_x86_64
 
 build:multiarch         --define=gomobile_multiarch=true
