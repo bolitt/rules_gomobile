@@ -24,6 +24,7 @@ def gomobile_repositories():
         patch_args = ["apply"],
         patches = [
             "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/org_golang_x_mobile.patch",
+            "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/0001-bind-mark-all-CGo-wrappers-hidden.patch",
         ],
     )
     _maybe(http_archive,
