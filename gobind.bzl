@@ -194,15 +194,15 @@ def _gobind_impl(ctx):
         ctx.label.name,
     ])
 
-    env = {
-        "GOROOT": "${PWD}/" + go.root,
-        "GOROOT_FINAL": "GOROOT",
+
+    env = {}
+    env.update(go.env)
+    env.update({
         "PATH": "${PWD}/" + go.root + "/bin:${PATH}",
+        "GOROOT": "${PWD}/external/go_sdk",
         "GOPATH": "${PWD}/" + gopath.gopath_file.dirname,
-        "GOOS": go.mode.goos,
-        "GOARCH": go.mode.goarch,
         "CGO_ENABLED": 1,
-    }
+    })
 
     outs = outputs.go_files + \
            outputs.cc_hdrs_files + \
