@@ -30,26 +30,28 @@ def declare_platforms():
 
     for os, goos in _OS.items():
         native.constraint_value(
-            name = "_" + os,
+            name = "%s_constraint" % os,
             constraint_setting = "os",
+            visibility = ["//visibility:public"],
         )
         native.config_setting(
             name = os,
             constraint_values = [
-                ":_" + os,
+                ":%s_constraint" % os,
             ],
             visibility = ["//visibility:public"],
         )
 
     for arch in _ARCHS:
         native.constraint_value(
-            name = "_" + arch,
+            name = "%s_constraint" % arch,
             constraint_setting = "arch",
+            visibility = ["//visibility:public"],
         )
         native.config_setting(
             name = arch,
             constraint_values = [
-                ":_" + arch,
+                ":%s_constraint" % arch,
             ],
             visibility = ["//visibility:public"],
         )
@@ -59,8 +61,8 @@ def declare_platforms():
             native.platform(
                 name = os + "_" + arch,
                 constraint_values = [
-                    ":_" + os,
-                    ":_" + arch,
+                    ":%s_constraint" % os,
+                    ":%s_constraint" % arch,
                     "@io_bazel_rules_go//go/toolchain:" + goos,
                     "@io_bazel_rules_go//go/toolchain:" + arch,
                 ],
