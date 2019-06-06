@@ -5,3 +5,23 @@ go_binary(
     srcs = ["gobind_wrapper.go"],
     visibility = ["//visibility:public"],
 )
+
+ANDROID_TOOLCHAINS = {
+    "aarch64": "@androidndk//:aarch64-linux-android-clang7.0.2-libcpp",
+    "arm": "@androidndk//:arm-linux-androideabi-clang7.0.2-v7a-libcpp",
+    "x86_32": "@androidndk//:x86-clang7.0.2-libcpp",
+    "x86_64": "@androidndk//:x86_64-clang7.0.2-libcpp",
+}
+
+[
+    toolchain(
+        name = "android_%s" % cpu,
+        target_compatible_with = [
+            "@platforms//os:android",
+            "@platforms//cpu:%s" % cpu,
+        ],
+        toolchain = toolchain_,
+        toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+    )
+    for cpu, toolchain_ in ANDROID_TOOLCHAINS.items()
+]

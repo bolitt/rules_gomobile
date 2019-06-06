@@ -10,14 +10,13 @@ def pkg_short(importpath):
 def slug(*args, token = "."):
     return token.join(args)
 
-def run_ex(ctx, env = None, executable = None, arguments = None, **kwargs):
+def run_ex(ctx, executable, env = None, tools = None, **kwargs):
+    env = env or {}
+    tools = tools or []
     exports = " && ".join(["export %s=\"%s\"" % (k, v) for k, v in env.items()])
     command = exports + " && " + executable.path + " $@"
-    kwargs.update({
-        "inputs": kwargs.get("inputs", []) + [executable],
-    })
     return ctx.actions.run_shell(
         command = command,
-        arguments = arguments,
+        tools = tools + [executable],
         **kwargs
     )
