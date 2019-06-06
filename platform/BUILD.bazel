@@ -1,3 +1,0 @@
-load("@co_znly_rules_gomobile//platform:platforms.bzl", "declare_platforms")
-
-declare_platforms()

@@ -1,0 +1,1 @@
+GoBindInfo = provider()

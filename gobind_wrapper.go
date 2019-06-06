@@ -22,6 +22,9 @@ func run(command string, args ...string) error {
 }
 
 func makeArchive(archive, dir string) error {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		return nil
+	}
 	args := []string{"c", archive}
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
