@@ -1,0 +1,47 @@
+load("@build_bazel_rules_apple//apple:ios.bzl", "ios_static_framework")
+load("@co_znly_rules_gomobile//:gobind.bzl", "gobind")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["helloworld.go"],
+    importpath = "github.com/znly/rules_gomobile/helloworld",
+    visibility = ["//visibility:public"],
+)
+
+gobind(
+    name = "HelloLib",
+    java_package = "co.znly",
+    deps = [":go_default_library"],
+)
+
+android_binary(
+    name = "sampleapp",
+    srcs = glob([
+        "java/**/*.java",
+    ]),
+    custom_package = "co.znly.rules_gomobile.sampleapp",
+    manifest = "AndroidManifest.xml",
+    multidex = "native",
+    resource_files = glob(["res/**"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        ":HelloLib.android_library",
+        "@android_deps//:com_android_support_appcompat_v7",
+        "@android_deps//:com_android_support_constraint_constraint_layout",
+        "@android_deps//:com_android_support_support_compat",
+    ],
+
+)
+
+ios_static_framework(
+    name = "HelloLib.framework",
+    hdrs = [":HelloLib.objc.hdrs"],
+    bundle_name = "HelloLib",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    minimum_os_version = "10.0",
+    deps = [":HelloLib.objc"],
+)

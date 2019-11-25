@@ -30,3 +30,29 @@ load(
 )
 
 apple_support_dependencies()
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "rules_jvm_external",
+    commit = "e545831479ed112515e3b1fcfff50ad19a623a3c",
+    remote = "https://github.com/bazelbuild/rules_jvm_external.git",
+    shallow_since = "1572988095 -0500",
+)
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+maven_install(
+    name = "android_deps",
+    artifacts = [
+        "com.android.support:appcompat-v7:27.1.1",
+        "com.android.support.constraint:constraint-layout:1.1.2",
+        "com.android.support:support-compat:27.1.1",
+        "com.android.support:support-annotations:27.1.1",
+    ],
+    repositories = [
+        "https://bintray.com/bintray/jcenter",
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+)
