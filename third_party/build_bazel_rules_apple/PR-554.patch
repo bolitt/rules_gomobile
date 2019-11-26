@@ -1,32 +1,26 @@
-From 5ffa80f0644f892cfb0e04dca182174a291c42d3 Mon Sep 17 00:00:00 2001
-From: Steeve Morin <steeve@zen.ly>
-Date: Tue, 20 Aug 2019 16:51:34 +0200
-Subject: [PATCH] Fetch public headers via the multi arch split
+commit 9d132a1f196756512c255fbe7b752f824d9adaed
+Author: Steeve Morin <steeve@zen.ly>
+Date:   Tue Aug 20 16:51:34 2019 +0200
 
-Fetch headers via the apple_common.multi_arch_split so that proper
-transitions are done. Since headers are assumed to be the same for all
-architectures, only the headers from the first split will be used.
-
-This is mostly useful if headers are generated.
-
-Fixes #466
-
-Signed-off-by: Steeve Morin <steeve@zen.ly>
----
- apple/internal/ios_rules.bzl    |  8 ++++++--
- apple/internal/rule_factory.bzl |  4 ++++
- apple/internal/tvos_rules.bzl   |  6 +++++-
- apple/internal/utils/split.bzl  | 25 +++++++++++++++++++++++++
- 4 files changed, 40 insertions(+), 3 deletions(-)
- create mode 100644 apple/internal/utils/split.bzl
+    Fetch public headers via the multi arch split
+    
+    Fetch headers via the apple_common.multi_arch_split so that proper
+    transitions are done. Since headers are assumed to be the same for all
+    architectures, only the headers from the first split will be used.
+    
+    This is mostly useful if headers are generated.
+    
+    Fixes #466
+    
+    Signed-off-by: Steeve Morin <steeve@zen.ly>
 
 diff --git a/apple/internal/ios_rules.bzl b/apple/internal/ios_rules.bzl
-index 8e655661..3d97153a 100644
+index ce5ed6a..8031be5 100644
 --- a/apple/internal/ios_rules.bzl
 +++ b/apple/internal/ios_rules.bzl
-@@ -54,6 +54,10 @@ load(
-     "@build_bazel_rules_apple//apple/internal:stub_support.bzl",
-     "stub_support",
+@@ -58,6 +58,10 @@ load(
+     "@build_bazel_rules_apple//apple/internal/aspects:swift_static_framework_aspect.bzl",
+     "SwiftStaticFrameworkInfo",
  )
 +load(
 +    "@build_bazel_rules_apple//apple/internal/utils:split.bzl",
@@ -34,8 +28,8 @@ index 8e655661..3d97153a 100644
 +)
  load(
      "@build_bazel_rules_apple//apple:providers.bzl",
-     "IosApplicationBundleInfo",
-@@ -211,7 +215,7 @@ def _ios_framework_impl(ctx):
+     "AppleBundleInfo",
+@@ -217,7 +221,7 @@ def _ios_framework_impl(ctx):
              embeddable_targets = ctx.attr.frameworks,
          ),
          partials.extension_safe_validation_partial(is_extension_safe = ctx.attr.extension_safe),
@@ -44,58 +38,72 @@ index 8e655661..3d97153a 100644
          partials.framework_provider_partial(
              binary_provider = binary_target[apple_common.AppleDylibBinary],
          ),
-@@ -312,7 +316,7 @@ def _ios_static_framework_impl(ctx):
-         partials.apple_bundle_info_partial(),
-         partials.binary_partial(binary_artifact = binary_artifact),
-         partials.static_framework_header_modulemap_partial(
--            hdrs = ctx.files.hdrs,
-+            hdrs = split.files(ctx.attr.hdrs),
-             umbrella_header = ctx.file.umbrella_header,
-             binary_objc_provider = binary_target[apple_common.Objc],
-         ),
+@@ -330,7 +334,7 @@ def _ios_static_framework_impl(ctx):
+     else:
+         processor_partials.append(
+             partials.static_framework_header_modulemap_partial(
+-                hdrs = ctx.files.hdrs,
++                hdrs = split.files(ctx.attr.hdrs),
+                 umbrella_header = ctx.file.umbrella_header,
+                 binary_objc_provider = binary_target[apple_common.Objc],
+             ),
 diff --git a/apple/internal/rule_factory.bzl b/apple/internal/rule_factory.bzl
-index f60e0b93..b13b619b 100644
+index dd3e147..3932880 100644
 --- a/apple/internal/rule_factory.bzl
 +++ b/apple/internal/rule_factory.bzl
-@@ -524,6 +524,7 @@ Required.
+@@ -542,6 +542,7 @@ Required.
              # what to do with this.
              "hdrs": attr.label_list(
                  allow_files = [".h"],
-+                cfg = apple_common.multi_arch_split,
++                cfg = rule_descriptor.deps_cfg,
              ),
              "extension_safe": attr.bool(
                  default = False,
-@@ -537,6 +538,7 @@ use only extension-safe APIs.
+@@ -555,6 +556,7 @@ use only extension-safe APIs.
          attrs.append({
              "hdrs": attr.label_list(
                  allow_files = [".h"],
-+                cfg = apple_common.multi_arch_split,
++                cfg = rule_descriptor.deps_cfg,
                  doc = """
  A list of `.h` files that will be publicly exposed by this framework. These headers should have
  framework-relative imports, and if non-empty, an umbrella header named `%{bundle_name}.h` will also
-@@ -545,6 +547,7 @@ be generated that imports all of the headers listed here.
-             ),
-             "umbrella_header": attr.label(
-                 allow_single_file = [".h"],
-+                cfg = apple_common.multi_arch_split,
-                 doc = """
- An optional single .h file to use as the umbrella header for this framework. Usually, this header
- will have the same name as this target, so that clients can load the header using the #import
-@@ -707,6 +710,7 @@ def _get_tvos_attrs(rule_descriptor):
+@@ -725,6 +727,7 @@ def _get_tvos_attrs(rule_descriptor):
              # what to do with this.
              "hdrs": attr.label_list(
                  allow_files = [".h"],
-+                cfg = apple_common.multi_arch_split,
++                cfg = rule_descriptor.deps_cfg,
              ),
              "extension_safe": attr.bool(
                  default = False,
+@@ -738,6 +741,7 @@ use only extension-safe APIs.
+         attrs.append({
+             "hdrs": attr.label_list(
+                 allow_files = [".h"],
++                cfg = rule_descriptor.deps_cfg,
+                 doc = """
+ A list of `.h` files that will be publicly exposed by this framework. These headers should have
+ framework-relative imports, and if non-empty, an umbrella header named `%{bundle_name}.h` will also
+diff --git a/apple/internal/rule_support.bzl b/apple/internal/rule_support.bzl
+index 151dee6..f202317 100644
+--- a/apple/internal/rule_support.bzl
++++ b/apple/internal/rule_support.bzl
+@@ -299,8 +299,7 @@ _RULE_TYPE_DESCRIPTORS = {
+         apple_product_type.static_framework: _describe_rule_type(
+             allowed_device_families = ["iphone", "ipad"],
+             bundle_extension = ".framework",
+-            deps_cfg = transition_support.static_framework_transition,
+-            force_transition_whitelist = True,
++            deps_cfg = apple_common.multi_arch_split,
+             has_infoplist = False,
+             product_type = apple_product_type.static_framework,
+             requires_bundle_id = False,
 diff --git a/apple/internal/tvos_rules.bzl b/apple/internal/tvos_rules.bzl
-index da371920..cedfc608 100644
+index b733507..20a44d9 100644
 --- a/apple/internal/tvos_rules.bzl
 +++ b/apple/internal/tvos_rules.bzl
-@@ -46,6 +46,10 @@ load(
-     "@build_bazel_rules_apple//apple/internal:run_support.bzl",
-     "run_support",
+@@ -50,6 +50,10 @@ load(
+     "@build_bazel_rules_apple//apple/internal/aspects:swift_static_framework_aspect.bzl",
+     "SwiftStaticFrameworkInfo",
  )
 +load(
 +    "@build_bazel_rules_apple//apple/internal/utils:split.bzl",
@@ -103,8 +111,8 @@ index da371920..cedfc608 100644
 +)
  load(
      "@build_bazel_rules_apple//apple:providers.bzl",
-     "TvosApplicationBundleInfo",
-@@ -169,7 +173,7 @@ def _tvos_framework_impl(ctx):
+     "AppleBundleInfo",
+@@ -176,7 +180,7 @@ def _tvos_framework_impl(ctx):
              embeddable_targets = ctx.attr.frameworks,
          ),
          partials.extension_safe_validation_partial(is_extension_safe = ctx.attr.extension_safe),
@@ -115,7 +123,7 @@ index da371920..cedfc608 100644
              bundle_id = bundle_id,
 diff --git a/apple/internal/utils/split.bzl b/apple/internal/utils/split.bzl
 new file mode 100644
-index 00000000..2ee48164
+index 0000000..2ee4816
 --- /dev/null
 +++ b/apple/internal/utils/split.bzl
 @@ -0,0 +1,25 @@

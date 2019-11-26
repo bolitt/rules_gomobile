@@ -42,8 +42,8 @@ def gomobile_repositories():
         git_repository,
         name = "build_bazel_rules_apple",
         remote = "https://github.com/bazelbuild/rules_apple.git",
-        commit = "7adb172f8d4f3c6627e927b151f46dec0127084e",
-        shallow_since = "1566328577 -0700",
+        commit = "f6a95e8d0c2bd6fa9f0a6280ef3c4d34c9594513",
+        shallow_since = "1574206203 -0800",
         patches = [
             "@co_znly_rules_gomobile//:third_party/build_bazel_rules_apple/PR-554.patch",
         ],
