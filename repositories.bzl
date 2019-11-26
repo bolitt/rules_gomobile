@@ -13,11 +13,13 @@ def gomobile_repositories():
         sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
     )
     maybe(
-        git_repository,
+        http_archive,
         name = "io_bazel_rules_go",
-        remote = "https://github.com/bazelbuild/rules_go.git",
-        commit = "1d299a6bc714fedde8f6b461cd7f97732c7eb1a2",
-        shallow_since = "1574370922 -0500",
+        urls = [
+            "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/v0.20.2/rules_go-v0.20.2.tar.gz",
+            "https://github.com/bazelbuild/rules_go/releases/download/v0.20.2/rules_go-v0.20.2.tar.gz",
+        ],
+        sha256 = "b9aa86ec08a292b97ec4591cf578e020b35f98e12173bbd4a921f84f583aebd9",
         patches = [
             "//:third_party/io_bazel_rules_go/PR-2181.patch",
         ],
