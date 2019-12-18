@@ -168,17 +168,17 @@ gobind_library = go_rule(
         ),
         "_gobind": attr.label(
             executable = True,
-            cfg = "exec",
+            cfg = "host",
             default = "@org_golang_x_mobile//cmd/gobind:gobind",
         ),
         "_gobind_wrapper": attr.label(
             executable = True,
-            cfg = "exec",
+            cfg = "host",
             default = "@co_znly_rules_gomobile//:gobind_wrapper",
         ),
         "_zipper": attr.label(
             default = "@bazel_tools//tools/zip:zipper",
-            cfg = "exec",
+            cfg = "host",
             executable = True,
         ),
     },
