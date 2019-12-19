@@ -40,9 +40,7 @@ def _create_module_map(ctx, gobind_info):
 def _gobind_ios_artifacts_impl(ctx):
     gobind_info = ctx.attr.gobind[GoBindInfo]
     return [
-        OutputGroupInfo(
-            hdrs = depset(gobind_info.objc),
-        ),
+        gobind_info,
         apple_common.new_objc_provider(
             header = depset(gobind_info.objc),
             imported_library = depset(ctx.files.binary),
@@ -70,7 +68,30 @@ gobind_ios_artifacts = rule(
     cfg = go_platform_transition,
 )
 
-def gobind_objc(name, deps, objc_prefix, tags, **kwargs):
+def _apple_untransition_impl(ctx):
+    return [
+        DefaultInfo(
+            files = depset(ctx.attr.artifacts[0][GoBindInfo].objc),
+        ),
+    ]
+
+apple_untransition_impl = rule(
+    _apple_untransition_impl,
+    attrs = {
+        "artifacts": attr.label(
+            mandatory = True,
+            providers = [GoBindInfo],
+            cfg = apple_common.multi_arch_split,
+        ),
+        "minimum_os_version": attr.string(mandatory = True),
+        "platform_type": attr.string(
+            mandatory = True,
+            values = ["ios", "watchos", "tvos"],
+        ),
+    },
+)
+
+def gobind_objc(name, deps, objc_prefix, platform_type, minimum_os_version, tags, **kwargs):
     gopath_name = slug(name, "objc", "gopath")
     gobind_name = slug(name, "objc", "gobind")
     binary_name = slug(name, "objc", "binary")
@@ -128,9 +149,10 @@ def gobind_objc(name, deps, objc_prefix, tags, **kwargs):
         binary = binary_name,
         visibility = ["//visibility:public"],
     )
-    native.filegroup(
+    apple_untransition_impl(
         name = objc_library_hdrs_name,
-        srcs = [objc_library_name],
-        output_group = "hdrs",
+        artifacts = objc_library_name,
+        platform_type = platform_type,
+        minimum_os_version = minimum_os_version,
         visibility = ["//visibility:public"],
     )
