@@ -1,6 +1,37 @@
-diff -ruN ./bind/BUILD.bazel ./bind/BUILD.bazel
---- ./bind/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./bind/BUILD.bazel	2018-06-23 23:34:24.000000000 +0200
+From 18287a24d6d3abd905319629bf037ac04299d76f Mon Sep 17 00:00:00 2001
+From: Steeve Morin <steeve@zen.ly>
+Date: Thu, 19 Dec 2019 16:28:31 +0100
+Subject: [PATCH 3/4] *: add BUILD.bazel files
+
+Signed-off-by: Steeve Morin <steeve@zen.ly>
+---
+ bind/BUILD.bazel                    | 26 ++++++++++++++++++++++++++
+ bind/java/BUILD.bazel               | 24 ++++++++++++++++++++++++
+ bind/objc/BUILD.bazel               | 16 ++++++++++++++++
+ bind/seq/BUILD.bazel                | 13 +++++++++++++
+ cmd/gobind/BUILD.bazel              | 24 ++++++++++++++++++++++++
+ internal/binres/BUILD.bazel         | 16 ++++++++++++++++
+ internal/importers/BUILD.bazel      |  8 ++++++++
+ internal/importers/java/BUILD.bazel |  9 +++++++++
+ internal/importers/objc/BUILD.bazel |  9 +++++++++
+ internal/mobileinit/BUILD.bazel     | 14 ++++++++++++++
+ 10 files changed, 159 insertions(+)
+ create mode 100644 bind/BUILD.bazel
+ create mode 100644 bind/java/BUILD.bazel
+ create mode 100644 bind/objc/BUILD.bazel
+ create mode 100644 bind/seq/BUILD.bazel
+ create mode 100644 cmd/gobind/BUILD.bazel
+ create mode 100644 internal/binres/BUILD.bazel
+ create mode 100644 internal/importers/BUILD.bazel
+ create mode 100644 internal/importers/java/BUILD.bazel
+ create mode 100644 internal/importers/objc/BUILD.bazel
+ create mode 100644 internal/mobileinit/BUILD.bazel
+
+diff --git a/bind/BUILD.bazel b/bind/BUILD.bazel
+new file mode 100644
+index 0000000..e204707
+--- /dev/null
++++ b/bind/BUILD.bazel
 @@ -0,0 +1,26 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 +
@@ -28,9 +59,11 @@ diff -ruN ./bind/BUILD.bazel ./bind/BUILD.bazel
 +        "//internal/importers/objc:go_default_library",
 +    ],
 +)
-diff -ruN ./bind/java/BUILD.bazel ./bind/java/BUILD.bazel
---- ./bind/java/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./bind/java/BUILD.bazel	2018-06-23 23:34:53.000000000 +0200
+diff --git a/bind/java/BUILD.bazel b/bind/java/BUILD.bazel
+new file mode 100644
+index 0000000..68666c8
+--- /dev/null
++++ b/bind/java/BUILD.bazel
 @@ -0,0 +1,24 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 +
@@ -56,9 +89,11 @@ diff -ruN ./bind/java/BUILD.bazel ./bind/java/BUILD.bazel
 +        "*.support",
 +    ]),
 +)
-diff -ruN ./bind/objc/BUILD.bazel ./bind/objc/BUILD.bazel
---- ./bind/objc/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./bind/objc/BUILD.bazel	2018-06-23 23:34:32.000000000 +0200
+diff --git a/bind/objc/BUILD.bazel b/bind/objc/BUILD.bazel
+new file mode 100644
+index 0000000..6f3f7c4
+--- /dev/null
++++ b/bind/objc/BUILD.bazel
 @@ -0,0 +1,16 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 +
@@ -76,9 +111,11 @@ diff -ruN ./bind/objc/BUILD.bazel ./bind/objc/BUILD.bazel
 +    importpath = "golang.org/x/mobile/bind/objc",
 +    visibility = ["//visibility:public"],
 +)
-diff -ruN ./bind/seq/BUILD.bazel ./bind/seq/BUILD.bazel
---- ./bind/seq/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./bind/seq/BUILD.bazel	2018-06-23 23:34:37.000000000 +0200
+diff --git a/bind/seq/BUILD.bazel b/bind/seq/BUILD.bazel
+new file mode 100644
+index 0000000..f085003
+--- /dev/null
++++ b/bind/seq/BUILD.bazel
 @@ -0,0 +1,13 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 +
@@ -93,9 +130,11 @@ diff -ruN ./bind/seq/BUILD.bazel ./bind/seq/BUILD.bazel
 +    visibility = ["//visibility:public"],
 +    deps = ["//internal/mobileinit:go_default_library"],
 +)
-diff -ruN ./cmd/gobind/BUILD.bazel ./cmd/gobind/BUILD.bazel
---- ./cmd/gobind/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./cmd/gobind/BUILD.bazel	2018-06-23 23:41:04.000000000 +0200
+diff --git a/cmd/gobind/BUILD.bazel b/cmd/gobind/BUILD.bazel
+new file mode 100644
+index 0000000..1594a52
+--- /dev/null
++++ b/cmd/gobind/BUILD.bazel
 @@ -0,0 +1,24 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 +
@@ -121,9 +160,11 @@ diff -ruN ./cmd/gobind/BUILD.bazel ./cmd/gobind/BUILD.bazel
 +    embed = [":go_default_library"],
 +    visibility = ["//visibility:public"],
 +)
-diff -ruN ./internal/binres/BUILD.bazel ./internal/binres/BUILD.bazel
---- ./internal/binres/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./internal/binres/BUILD.bazel	2018-06-23 23:41:10.000000000 +0200
+diff --git a/internal/binres/BUILD.bazel b/internal/binres/BUILD.bazel
+new file mode 100644
+index 0000000..242d7f6
+--- /dev/null
++++ b/internal/binres/BUILD.bazel
 @@ -0,0 +1,16 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 +
@@ -141,9 +182,11 @@ diff -ruN ./internal/binres/BUILD.bazel ./internal/binres/BUILD.bazel
 +    importpath = "golang.org/x/mobile/internal/binres",
 +    visibility = ["//:__subpackages__"],
 +)
-diff -ruN ./internal/importers/BUILD.bazel ./internal/importers/BUILD.bazel
---- ./internal/importers/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./internal/importers/BUILD.bazel	2018-06-23 23:41:28.000000000 +0200
+diff --git a/internal/importers/BUILD.bazel b/internal/importers/BUILD.bazel
+new file mode 100644
+index 0000000..6c4796c
+--- /dev/null
++++ b/internal/importers/BUILD.bazel
 @@ -0,0 +1,8 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 +
@@ -153,9 +196,11 @@ diff -ruN ./internal/importers/BUILD.bazel ./internal/importers/BUILD.bazel
 +    importpath = "golang.org/x/mobile/internal/importers",
 +    visibility = ["//:__subpackages__"],
 +)
-diff -ruN ./internal/importers/java/BUILD.bazel ./internal/importers/java/BUILD.bazel
---- ./internal/importers/java/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./internal/importers/java/BUILD.bazel	2018-06-23 23:41:22.000000000 +0200
+diff --git a/internal/importers/java/BUILD.bazel b/internal/importers/java/BUILD.bazel
+new file mode 100644
+index 0000000..c6684ff
+--- /dev/null
++++ b/internal/importers/java/BUILD.bazel
 @@ -0,0 +1,9 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 +
@@ -166,9 +211,11 @@ diff -ruN ./internal/importers/java/BUILD.bazel ./internal/importers/java/BUILD.
 +    visibility = ["//:__subpackages__"],
 +    deps = ["//internal/importers:go_default_library"],
 +)
-diff -ruN ./internal/importers/objc/BUILD.bazel ./internal/importers/objc/BUILD.bazel
---- ./internal/importers/objc/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./internal/importers/objc/BUILD.bazel	2018-06-23 23:41:33.000000000 +0200
+diff --git a/internal/importers/objc/BUILD.bazel b/internal/importers/objc/BUILD.bazel
+new file mode 100644
+index 0000000..c1a050c
+--- /dev/null
++++ b/internal/importers/objc/BUILD.bazel
 @@ -0,0 +1,9 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 +
@@ -179,9 +226,11 @@ diff -ruN ./internal/importers/objc/BUILD.bazel ./internal/importers/objc/BUILD.
 +    visibility = ["//:__subpackages__"],
 +    deps = ["//internal/importers:go_default_library"],
 +)
-diff -ruN ./internal/mobileinit/BUILD.bazel ./internal/mobileinit/BUILD.bazel
---- ./internal/mobileinit/BUILD.bazel	1970-01-01 01:00:00.000000000 +0100
-+++ ./internal/mobileinit/BUILD.bazel	2018-09-27 17:13:39.000000000 +0200
+diff --git a/internal/mobileinit/BUILD.bazel b/internal/mobileinit/BUILD.bazel
+new file mode 100644
+index 0000000..9d71e2e
+--- /dev/null
++++ b/internal/mobileinit/BUILD.bazel
 @@ -0,0 +1,14 @@
 +load("@io_bazel_rules_go//go:def.bzl", "go_library")
 +
@@ -197,3 +246,6 @@ diff -ruN ./internal/mobileinit/BUILD.bazel ./internal/mobileinit/BUILD.bazel
 +    importpath = "golang.org/x/mobile/internal/mobileinit",
 +    visibility = ["//visibility:public"],
 +)
+-- 
+2.22.0
+

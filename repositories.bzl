@@ -35,9 +35,10 @@ def gomobile_repositories():
         patch_tool = "git",
         patch_args = ["apply"],
         patches = [
-            "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/0001-gc-importer.patch",
-            "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/0002-bind-mark-all-CGo-wrappers-hidden.patch",
-            "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/0003-org_golang_x_mobile.patch",
+            "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/0001-bind-mark-all-CGo-wrappers-hidden.patch",
+            "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/0002-cmd-gobind-replace-the-source-importer-with-the-gc-i.patch",
+            "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/0003-add-BUILD.bazel-files.patch",
+            "@co_znly_rules_gomobile//third_party:org_golang_x_mobile/0004-internal-mobileinit-remove-stderr-redirection.patch",
         ],
     )
     maybe(

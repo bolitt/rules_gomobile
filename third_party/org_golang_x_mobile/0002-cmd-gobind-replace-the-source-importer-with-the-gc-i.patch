@@ -1,0 +1,30 @@
+From 53871305fbb0475a0eb68837501fbd770ad98c4c Mon Sep 17 00:00:00 2001
+From: Steeve Morin <steeve@zen.ly>
+Date: Thu, 19 Dec 2019 16:27:25 +0100
+Subject: [PATCH 2/4] cmd/gobind: replace the source importer with the gc
+ importer
+
+The gc importer uses PKGDEF data from compiled artefacts, which makes it
+way faster.
+
+Signed-off-by: Steeve Morin <steeve@zen.ly>
+---
+ cmd/gobind/main.go | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/gobind/main.go b/cmd/gobind/main.go
+index 303938d..8e48a82 100644
+--- a/cmd/gobind/main.go
++++ b/cmd/gobind/main.go
+@@ -139,7 +139,7 @@ func run() {
+ 	defer func() {
+ 		build.Default = oldCtx
+ 	}()
+-	imp := importer.For("source", nil)
++	imp := importer.For("gc", nil)
+ 	for i, pkg := range allPkg {
+ 		var err error
+ 		typePkgs[i], err = imp.Import(pkg.ImportPath)
+-- 
+2.22.0
+

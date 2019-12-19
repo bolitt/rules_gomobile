@@ -1,0 +1,54 @@
+From 93dd3c36e9136f3ea8572b0561b3f6b0b2aaa8d4 Mon Sep 17 00:00:00 2001
+From: Steeve Morin <steeve@zen.ly>
+Date: Thu, 19 Dec 2019 16:29:48 +0100
+Subject: [PATCH 4/4] internal/mobileinit: remove stderr redirection
+
+The stderr redirection will trigger an ANR in case of a panic, because
+the Go runtime will dump its content directly on stderr, which is not
+read anymore by the goroutine. Remove that code completely.
+
+Signed-off-by: Steeve Morin <steeve@zen.ly>
+---
+ internal/mobileinit/mobileinit_android.go | 21 ---------------------
+ 1 file changed, 21 deletions(-)
+
+diff --git a/internal/mobileinit/mobileinit_android.go b/internal/mobileinit/mobileinit_android.go
+index 26ed3f5..0b9396a 100644
+--- a/internal/mobileinit/mobileinit_android.go
++++ b/internal/mobileinit/mobileinit_android.go
+@@ -29,7 +29,6 @@ import (
+ 	"bufio"
+ 	"log"
+ 	"os"
+-	"syscall"
+ 	"unsafe"
+ )
+ 
+@@ -71,24 +70,4 @@ func init() {
+ 	log.SetOutput(infoWriter{})
+ 	// android logcat includes all of log.LstdFlags
+ 	log.SetFlags(log.Flags() &^ log.LstdFlags)
+-
+-	r, w, err := os.Pipe()
+-	if err != nil {
+-		panic(err)
+-	}
+-	stderr = w
+-	if err := syscall.Dup3(int(w.Fd()), int(os.Stderr.Fd()), 0); err != nil {
+-		panic(err)
+-	}
+-	go lineLog(r, C.ANDROID_LOG_ERROR)
+-
+-	r, w, err = os.Pipe()
+-	if err != nil {
+-		panic(err)
+-	}
+-	stdout = w
+-	if err := syscall.Dup3(int(w.Fd()), int(os.Stdout.Fd()), 0); err != nil {
+-		panic(err)
+-	}
+-	go lineLog(r, C.ANDROID_LOG_INFO)
+ }
+-- 
+2.22.0
+

@@ -1,7 +1,7 @@
-From 547a3c2e550416a664df1b85f680500c31ba7d36 Mon Sep 17 00:00:00 2001
+From 692039d958628e22754d80db53c83e59c063d981 Mon Sep 17 00:00:00 2001
 From: Steeve Morin <steeve.morin@gmail.com>
 Date: Wed, 13 Mar 2019 00:40:04 +0100
-Subject: [PATCH] bind: mark all CGo wrappers hidden
+Subject: [PATCH 1/4] bind: mark all CGo wrappers hidden
 
 Signed-off-by: Steeve Morin <steeve.morin@gmail.com>
 ---
@@ -126,5 +126,5 @@ index dda9b0f..a36e575 100644
  import "C"
  
 -- 
-2.19.1
+2.22.0
 
