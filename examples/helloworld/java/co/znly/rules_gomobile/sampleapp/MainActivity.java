@@ -13,7 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import co.znly.helloworld.Helloworld;
+import helloworld.Helloworld;
+import adder.Adder;
 
 public class MainActivity extends AppCompatActivity {
     private Button mButton;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         mButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Helloworld.hello("golang");
+                Adder.add(1, 2);
             }
         });
     }

@@ -7,25 +7,22 @@ def gomobile_repositories():
         http_archive,
         name = "bazel_skylib",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
-            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
         ],
-        sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
+        sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
     )
     maybe(
-        http_archive,
+        native.local_repository,
         name = "io_bazel_rules_go",
-        urls = [
-            "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/v0.20.2/rules_go-v0.20.2.tar.gz",
-            "https://github.com/bazelbuild/rules_go/releases/download/v0.20.2/rules_go-v0.20.2.tar.gz",
-        ],
-        sha256 = "b9aa86ec08a292b97ec4591cf578e020b35f98e12173bbd4a921f84f583aebd9",
-        patches = [
-            "//:third_party/io_bazel_rules_go/PR-2181.patch",
-        ],
-        patch_tool = "git",
-        patch_args = ["apply"],
+        path = "../rules_go",
     )
+    # maybe(
+    #     git_repository,
+    #     name = "io_bazel_rules_go",
+    #     remote = "https://github.com/bazelbuild/rules_go.git",
+    #     commit = "9794aacb240809111dfb9d587d40475b2819310e",
+    # )
     maybe(
         git_repository,
         name = "org_golang_x_mobile",
@@ -42,17 +39,23 @@ def gomobile_repositories():
         ],
     )
     maybe(
-        git_repository,
+        http_archive,
         name = "build_bazel_rules_apple",
-        remote = "https://github.com/bazelbuild/rules_apple.git",
-        commit = "f6a95e8d0c2bd6fa9f0a6280ef3c4d34c9594513",
-        shallow_since = "1574206203 -0800",
-        patches = [
-            "@co_znly_rules_gomobile//:third_party/build_bazel_rules_apple/PR-554.patch",
-        ],
-        patch_tool = "git",
-        patch_args = ["apply"],
+        sha256 = "a41a75c291c69676b9974458ceee09aea60cee0e1ee282e27cdc90b679dfd30f",
+        url = "https://github.com/bazelbuild/rules_apple/releases/download/0.21.2/rules_apple.0.21.2.tar.gz",
     )
+    # maybe(
+    #     git_repository,
+    #     name = "build_bazel_rules_apple",
+    #     remote = "https://github.com/bazelbuild/rules_apple.git",
+    #     commit = "f6a95e8d0c2bd6fa9f0a6280ef3c4d34c9594513",
+    #     shallow_since = "1574206203 -0800",
+    #     patches = [
+    #         # "@co_znly_rules_gomobile//:third_party/build_bazel_rules_apple/PR-554.patch",
+    #     ],
+    #     patch_tool = "git",
+    #     patch_args = ["apply"],
+    # )
     maybe(
         native.android_sdk_repository,
         name = "androidsdk",

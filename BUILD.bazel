@@ -1,7 +1,20 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary")
+load("@io_bazel_rules_go//go/private/rules:transition.bzl", "go_reset_target")
 
 go_binary(
-    name = "gobind_wrapper",
+    name = "gobind_wrapper-bin",
     srcs = ["gobind_wrapper.go"],
+    visibility = ["//visibility:private"],
+)
+
+go_reset_target(
+    name = "gobind_wrapper",
+    dep = ":gobind_wrapper-bin",
+    visibility = ["//visibility:public"],
+)
+
+go_reset_target(
+    name = "gobind",
+    dep = "@org_golang_x_mobile//cmd/gobind:gobind",
     visibility = ["//visibility:public"],
 )

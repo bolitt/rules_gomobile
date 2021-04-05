@@ -8,14 +8,14 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 
 go_rules_dependencies()
 
-go_register_toolchains()
+go_register_toolchains(version = "1.16.3")
 
 load(
     "@build_bazel_rules_apple//apple:repositories.bzl",
     "apple_rules_dependencies",
 )
 
-apple_rules_dependencies(ignore_version_differences = True)
+apple_rules_dependencies()
 
 load(
     "@build_bazel_rules_swift//swift:repositories.bzl",
@@ -35,9 +35,9 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "rules_jvm_external",
-    commit = "e545831479ed112515e3b1fcfff50ad19a623a3c",
+    commit = "8ca81e01547c30bde92c3a1c369642b1891e9287",
     remote = "https://github.com/bazelbuild/rules_jvm_external.git",
-    shallow_since = "1572988095 -0500",
+    shallow_since = "1609902496 +0800",
 )
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
