@@ -19,7 +19,7 @@ _IOS_COPTS = [
 def _generate_filenames(importpath, java_package, objc_prefix, is_main):
     pkg_short = utils.pkg_short(importpath)
     pkg_short_title = pkg_short.title()
-    objc_prefix = objc_prefix.title()
+    objc_prefix = objc_prefix
     files = struct(
         importpath = importpath,
         pkg_short = pkg_short,
@@ -41,8 +41,8 @@ def _generate_filenames(importpath, java_package, objc_prefix, is_main):
 def _declare_pkg_files(ctx, outputs, pkg, go_main_file, java_package = "", objc_prefix = "", is_main = True):
     files = _generate_filenames(
         importpath = pkg,
-        java_package = ctx.attr.java_package,
-        objc_prefix = ctx.attr.objc_prefix,
+        java_package = java_package,
+        objc_prefix = objc_prefix,
         is_main = is_main,
     )
     outputs.go.extend([
@@ -57,6 +57,7 @@ def _declare_pkg_files(ctx, outputs, pkg, go_main_file, java_package = "", objc_
 def _declare_seq_files(ctx, outputs, go_main_file):
     outputs.objc.append(ctx.actions.declare_file("ref.h", sibling = go_main_file))
     go_srcs = [
+        "ref.h",
         "seq_android.c",
         "seq_android.go",
         "seq_android.h",
@@ -113,7 +114,7 @@ def _gobind_library_impl(ctx):
 
     utils.run_ex(
         ctx,
-        inputs = ctx.files.go_path,
+        inputs = ctx.attr.go_path.files,
         outputs = outputs.go + outputs.objc + outputs.java,
         mnemonic = "GoBind",
         executable = ctx.executable._gobind_wrapper,
@@ -121,9 +122,9 @@ def _gobind_library_impl(ctx):
             "CGO_ENABLED": 1,
             "GO111MODULE": "off",
             "GOPATH": paths.join("${PWD}", gopath.gopath_file.dirname),
-            "GOROOT": paths.join("${PWD}", go.sdk_root.dirname),
+            "GOROOT": go.sdk_root.dirname,
             "PATH": ":".join([
-                paths.join("${PWD}", go.sdk_root.dirname, "bin"),
+                paths.join(go.sdk_root.dirname, "bin"),
                 "${PATH}",
             ]),
         }),
@@ -146,13 +147,8 @@ def _gobind_library_impl(ctx):
         ],
     )
 
-    library = go.new_library(go, srcs = outputs.go + outputs.objc)
-    source = go.library_to_source(go, ctx.attr, library, ctx.coverage_instrumented())
-
     return [
         outputs,
-        library,
-        source,
         DefaultInfo(
             files = depset(outputs.go + outputs.objc + outputs.java),
         ),
@@ -202,7 +198,7 @@ _gobind_library = rule(
     toolchains = ["@io_bazel_rules_go//go:toolchain"],
 )
 
-def gobind_library(name, deps, java_package = "", objc_prefix = "", apple_platform_type = "", apple_minimum_os_version = "", tags = [], copts = [], visibility = None, **kwargs):
+def gobind_library(name, deps, java_package = "", objc_prefix = "", objc_module_name = None, tags = [], copts = [], visibility = None, **kwargs):
     gopath_name = utils.slug(name, "gopath")
     go_path(
         name = gopath_name,
@@ -224,74 +220,69 @@ def gobind_library(name, deps, java_package = "", objc_prefix = "", apple_platfo
         go_path = gopath_name,
         objc_prefix = objc_prefix,
         deps = deps,
-        copts = copts + select({
-            "@io_bazel_rules_go//go/platform:android": _ANDROID_COPTS,
-            "@io_bazel_rules_go//go/platform:ios": _IOS_COPTS,
-            "//conditions:default": [],
-        }),
-        tags = tags + ["manual"],
-    )
-
-    java_binary_name = utils.slug(name, "java", "binary")
-    go_binary(
-        name = java_binary_name,
-        embed = [gobind_name],
-        deps = deps + [
-            "@org_golang_x_mobile//bind/java:go_default_library",
-            "@org_golang_x_mobile//bind/seq:go_default_library",
-        ],
-        out = "libgojni.so",
-        copts = copts + _ANDROID_COPTS,
-        pure = "off",
-        linkmode = "c-shared",
-        tags = tags + ["manual"],
-        **kwargs
-    )
-
-    java_srcs_name = utils.slug(name, "java", "srcs")
-    native.filegroup(
-        name = java_srcs_name,
-        srcs = [gobind_name],
-        output_group = "java",
         tags = ["manual"],
     )
+
+    srcs_name = {
+        lang: utils.slug(name, "srcs", lang)
+        for lang in ["go", "java", "objc"]
+    }
+    for lang in ["go", "java", "objc"]:
+        native.filegroup(
+            name = srcs_name[lang],
+            srcs = [gobind_name],
+            output_group = lang,
+            tags = ["manual"],
+        )
+
+    binaries = dict(
+        java = dict(
+            name = utils.slug(name, "binary", "java"),
+            srcs = [srcs_name["go"]],
+            copts = copts + _ANDROID_COPTS,
+            linkmode = "c-shared",
+        ),
+        objc = dict(
+            name = utils.slug(name, "binary", "objc"),
+            srcs = [srcs_name["go"], srcs_name["objc"]],
+            copts = copts + _IOS_COPTS,
+            linkmode = "c-archive",
+        ),
+    )
+    for lang in ["java", "objc"]:
+        binaries_kwargs = dicts.add(kwargs, binaries[lang])
+        go_binary(
+            cgo = True,
+            deps = deps + [
+                "@org_golang_x_mobile//bind/java:go_default_library",
+                "@org_golang_x_mobile//bind/seq:go_default_library",
+            ],
+            tags = tags + ["manual"],
+            **binaries_kwargs
+        )
 
     android_library_name = utils.slug(name, "android_library")
     native.android_library(
         name = android_library_name,
-        srcs = [java_srcs_name],
-        deps = [java_binary_name],
+        srcs = [srcs_name["java"]],
+        deps = [binaries["java"]["name"]],
         tags = tags,
         visibility = visibility,
     )
 
-    objc_binary_name = utils.slug(name, "objc", "binary")
-    go_binary(
-        name = objc_binary_name,
-        embed = [gobind_name],
-        deps = deps + [
-            "@org_golang_x_mobile//bind/java:go_default_library",
-            "@org_golang_x_mobile//bind/seq:go_default_library",
-        ],
-        copts = copts + _IOS_COPTS,
-        pure = "off",
-        linkmode = "c-archive",
-        **kwargs
+    cc_library_name = utils.slug(name, "cc")
+    native.cc_library(
+        name = cc_library_name,
+        deps = [binaries["objc"]["name"]],
+        tags = ["manual"],
     )
 
     objc_library_name = utils.slug(name, "objc")
-    gobind_to_objc_library(
+    native.objc_library(
         name = objc_library_name,
-        gobind_library = gobind_name,
+        hdrs = [srcs_name["objc"]],
+        module_name = objc_module_name,
+        tags = tags,
         visibility = visibility,
-        deps = [objc_binary_name],
-    )
-
-    objc_library_hdrs_name = utils.slug(objc_library_name, "hdrs")
-    apple_untransition_gobind_hdrs(
-        name = objc_library_hdrs_name,
-        minimum_os_version = apple_minimum_os_version,
-        platform_type = apple_platform_type,
-        dep = gobind_name,
-        visibility = visibility,
+        deps = [cc_library_name],
     )

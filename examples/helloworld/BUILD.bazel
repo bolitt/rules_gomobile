@@ -19,7 +19,6 @@ go_library(
 gobind_library(
     name = "HelloLib",
     java_package = "co.znly",
-    apple_platform_type = "ios",
     deps = [
         ":adder_library",
         ":hello_library",
@@ -46,7 +45,7 @@ android_binary(
 
 ios_static_framework(
     name = "HelloLib.framework",
-    hdrs = [":HelloLib.objc.hdrs"],
+    # hdrs = [":HelloLib.objc.hdrs"],
     bundle_name = "HelloLib",
     families = [
         "iphone",
