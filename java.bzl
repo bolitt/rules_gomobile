@@ -60,6 +60,7 @@ def gobind_java(name, deps, java_package, tags, **kwargs):
     binary_name = slug(name, "java", "binary")
     artifacts_name = slug(name, "java", "artifacts")
     cc_library_name = slug(name, "java", "cc")
+    java_library_name = slug(name, "java", "library")
     android_library_name = slug(name, "android_library")
 
     go_path(
@@ -100,15 +101,21 @@ def gobind_java(name, deps, java_package, tags, **kwargs):
         gobind = gobind_name,
         binary = binary_name,
     )
+    # java_library_name contains all gobind java classes (with seq and all)
+    native.android_library(
+        name = java_library_name,
+        srcs = [artifacts_name],
+        visibility = ["//visibility:public"],
+    )
 
     # # Forward CcInfo from artifacts rule to please android_library
     native.cc_library(
         name = cc_library_name,
         deps = [artifacts_name],
     )
+    # android_library_name only contains the libgojni.so file
     native.android_library(
         name = android_library_name,
-        srcs = [artifacts_name],
         exports = [cc_library_name],
         visibility = ["//visibility:public"],
     )
