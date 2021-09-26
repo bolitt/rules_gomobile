@@ -5,15 +5,10 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 )
 
 var (
 	gomobile = flag.String("gomobile", "", "")
-	gobind   = flag.String("gobind", "", "")
-	zipper   = flag.String("zipper", "", "")
-	outdir   = flag.String("outdir", "", "")
-	outjar   = flag.String("outjar", "", "")
 
 	outaar  = flag.String("o", "", "")
 	v       = flag.Bool("v", true, "")
@@ -27,21 +22,6 @@ func run(command string, args ...string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
-}
-
-func makeArchive(archive, dir string) error {
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		return nil
-	}
-	args := []string{"c", archive}
-	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			return nil
-		}
-		args = append(args, path[len(dir)+1:]+"="+path)
-		return nil
-	})
-	return run(*zipper, args...)
 }
 
 func checkPrecondition() {
@@ -64,18 +44,13 @@ func checkPrecondition() {
 	if *target == "ios" {
 		return
 	}
+
+	// panic("Flag `target`: expected either android or ios.")
 }
 
 func main() {
 	flag.Parse()
 	log.Printf("[gobind_wrapper.go] Parsd flags flags.Args() = %v", flag.Args())
-
-	// if err := run(*gobind, flag.Args()...); err != nil {
-	// 	panic(err)
-	// }
-	// if err := makeArchive(*outjar, *outdir+"/java"); err != nil {
-	// 	panic(err)
-	// }
 
 	if wd, err := os.Getwd(); err != nil {
 		panic(err)

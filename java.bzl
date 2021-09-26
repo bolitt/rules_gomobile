@@ -7,7 +7,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_path")
 
 def _gobind_android_artifacts_impl(ctx):
     cc_toolchain = find_cpp_toolchain(ctx)
-    # print("cc_toolchain:\n", cc_toolchain)
 
     gobind_info = ctx.attr.gobind[GoBindInfo]
     feature_configuration = cc_common.configure_features(
@@ -26,25 +25,21 @@ def _gobind_android_artifacts_impl(ctx):
     # TODO(tianlin): libraries_to_link is deprecated.
     linker_input = cc_common.create_linker_input(
         libraries = depset([lib]),
-        # user_link_flags = depset(ctx.attr.linkopts),
         owner = ctx.label,
     )
     linking_context = cc_common.create_linking_context(
         linker_inputs = depset([linker_input]),
     )
-
-    ret = [
+    return [
         DefaultInfo(
             files = depset(gobind_info.java),
         ),
         CcInfo(
             # TODO(tianlin): libraries_to_link is deprecated.
-            # linking_context = cc_common.create_linking_context(libraries_to_link = [lib]),
             linking_context = linking_context,
         ),
     ]
-    # print("ret: \n", ret)
-    return ret
+    
 
 gobind_android_artifacts = rule(
     _gobind_android_artifacts_impl,
@@ -69,41 +64,15 @@ gobind_android_artifacts = rule(
 )
 
 
-def gobind_java(name, deps, java_package, tags, **kwargs):
+def gobind_java(name, gopath_name, deps, java_package, tags, **kwargs):
     """Gobind library with java and aar."""
-    gopath_name = slug(name, "java", "gopath")
-    gobind_name = slug(name, "java", "gobind")
+    # gopath_name = slug(name, "java", "gopath")
+    gobind_name = slug(name, "gobind", "java")
     # binary_name = slug(name, "java", "binary")
     # artifacts_name = slug(name, "java", "artifacts")
     # cc_library_name = slug(name, "java", "cc")
     # java_library_name = slug(name, "java", "library")
     # android_library_name = slug(name, "android_library")
-
-    go_path(
-        name = gopath_name,
-        mode = "link",
-        include_pkg = True,
-        include_transitive = True,
-        # linkmode = "c-shared",
-        deps = deps + [
-            # For command line.
-            "@org_golang_x_mobile//cmd/gomobile:gomobile",
-            "@org_golang_x_mobile//cmd/gobind:gobind",
-            # For bind.
-            "@org_golang_x_mobile//bind:go_default_library",
-            "@org_golang_x_mobile//bind/java:go_default_library",
-            "@org_golang_x_mobile//bind/seq:go_default_library",
-            # For other resources.
-            "@org_golang_x_mobile//asset:go_default_library",
-            "@org_golang_x_mobile//app:go_default_library",
-            "@org_golang_x_mobile//gl:go_default_library",
-            "@org_golang_x_mobile//geom:go_default_library",
-            "@org_golang_x_sys//execabs:go_default_library",
-            "@org_golang_x_tools//go/packages:go_default_library",
-            "@org_golang_x_tools//go/gcexportdata:go_default_library",
-            "@org_golang_x_xerrors//:go_default_library",
-        ],
-    )
 
     gobind_library(
         name = gobind_name,
@@ -146,11 +115,3 @@ def gobind_java(name, deps, java_package, tags, **kwargs):
     #     exports = [cc_library_name],
     #     visibility = ["//visibility:public"],
     # )
-
-# def _java_path(repository_ctx):
-#     java_home = repository_ctx.os.environ.get("JAVA_HOME")
-#     if java_home != None:
-#         return repository_ctx.path(java_home + "/bin/java")
-#     elif repository_ctx.which("java") != None:
-#         return repository_ctx.which("java")
-#     return None

@@ -91,43 +91,15 @@ apple_untransition_impl = rule(
     },
 )
 
-def gobind_objc(name, deps, objc_prefix, platform_type, minimum_os_version, tags, **kwargs):
-    gopath_name = slug(name, "objc", "gopath")
-    gobind_name = slug(name, "objc", "gobind")
-    binary_name = slug(name, "objc", "binary")
-    artifacts_name = slug(name, "objc", "artifacts")
-    objc_library_name = slug(name, "objc")
-    objc_library_hdrs_name = slug(objc_library_name, "hdrs")
+def gobind_objc(name, gopath_name, deps, objc_prefix, platform_type, minimum_os_version, tags, **kwargs):
+    """Generates gobind for objc."""
+    # gopath_name = slug(name, "objc", "gopath")
+    gobind_name = slug(name, "gobind", "objc")
+    # binary_name = slug(name, "objc", "binary")
+    # artifacts_name = slug(name, "objc", "artifacts")
+    # objc_library_name = slug(name, "objc")
+    # objc_library_hdrs_name = slug(objc_library_name, "hdrs")
 
-    go_path(
-        name = gopath_name,
-        mode = "link",
-        include_pkg = True,
-        include_transitive = True,
-        # linkmode = "c-archive",
-        deps = deps + [
-            # For command line.
-            "@org_golang_x_mobile//cmd/gomobile:gomobile",
-            "@org_golang_x_mobile//cmd/gobind:gobind",
-            # For bind.
-            "@org_golang_x_mobile//bind:go_default_library",
-            "@org_golang_x_mobile//bind/java:go_default_library",  # java is also required.
-            "@org_golang_x_mobile//bind/seq:go_default_library",
-            "@org_golang_x_mobile//bind/objc:go_default_library",
-            # For other resources.
-            "@org_golang_x_mobile//asset:go_default_library",
-            "@org_golang_x_mobile//app:go_default_library",
-            "@org_golang_x_mobile//gl:go_default_library",
-            "@org_golang_x_mobile//geom:go_default_library",
-            "@org_golang_x_sys//execabs:go_default_library",
-            "@org_golang_x_tools//go/packages:go_default_library",
-            "@org_golang_x_tools//go/gcexportdata:go_default_library",
-            "@org_golang_x_xerrors//:go_default_library",
-            # Old:
-            # "@org_golang_x_mobile//bind:go_default_library",
-            # "@org_golang_x_mobile//bind/objc:go_default_library",
-        ],
-    )
     gobind_library(
         name = gobind_name,
         go_path = gopath_name,

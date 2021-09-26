@@ -148,16 +148,12 @@ def _gobind_library_impl(ctx):
         outputs.java.append(go.actions.declare_file(jar_file))
         outputs.java.append(go.actions.declare_file(aar_file))
 
+        # Real out_gobind path.
         out_gobind = "/".join([
             ctx.genfiles_dir.path,
             ctx.label.package,
             aar_file,
         ])
-        
-        print('outputs.java: ', outputs.java)
-        print('aar_file: ', aar_file)
-        print('jar_file: ', jar_file)
-        print('out_gobind: ', out_gobind)
 
         # Android envs:
         sdk_label = Label("@androidsdk")
@@ -177,6 +173,7 @@ def _gobind_library_impl(ctx):
         xcframework_folder = "%s.xcframework" % ctx.label.name
         outputs.objc.append(go.actions.declare_directory(xcframework_folder))
 
+        # Real out_gobind path.
         out_gobind = "/".join([
             ctx.genfiles_dir.path,
             ctx.label.package,

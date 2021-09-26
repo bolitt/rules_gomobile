@@ -21,21 +21,14 @@ def run_ex(ctx, executable, gomobile, gobind, env = None, tools = None, **kwargs
         ["export %s=\"%s\"" % (k, v) for k, v in env.items()] + 
         [executable.path + " $@"]
     )
-    # command = exports + " && " + 
-    # return ctx.actions.run_shell(
-    #     command = command,
-    #     tools = tools + [executable],
-    #     **kwargs
-    # )
-    new_env = {
+    
+    env_in_strings = {
         str(k): str(v)
         for k, v in env.items()
     }
-    # print("kwargs: ", kwargs)
-
     return ctx.actions.run_shell(
         command = command,
         tools = tools + [executable],
-        env = new_env,
+        env = env_in_strings,
         **kwargs
     )
