@@ -1,0 +1,40 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "bind",
+    srcs = [
+        "bind.go",
+        "gen.go",
+        "genclasses.go",
+        "gengo.go",
+        "genjava.go",
+        "genobjc.go",
+        "genobjcw.go",
+        "printer.go",
+        "types.go",
+    ],
+    importpath = "golang.org/x/mobile/bind",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//internal/importers",
+        "//internal/importers/java",
+        "//internal/importers/objc",
+    ],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":bind",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "bind_test",
+    srcs = ["bind_test.go"],
+    embed = [":bind"],
+    deps = [
+        "//internal/importers",
+        "//internal/importers/java",
+        "//internal/importers/objc",
+    ],
+)

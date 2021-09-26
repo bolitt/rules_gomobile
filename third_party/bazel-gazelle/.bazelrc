@@ -1,0 +1,22 @@
+# Cache to ~/.cache/bazel without downloading again.
+build --experimental_repository_cache=~/.cache/bazel
+# https://docs.bazel.build/versions/main/remote-caching.html#disk-cache
+build --repository_cache=~/.cache/bazel
+# Use local cache:
+build --disk_cache=~/tmp/cache/bazel
+# Use remote cache (need to setup server):
+
+# Also suppress the generation of the bazel-out symlink, which always appears,no
+# matter what you set --symlink_prefix to.
+build --experimental_no_product_name_out_symlink
+
+
+# This file contains options passed to Bazel when running tests.
+# They are used by Travis CI and by non-Bazel test scripts.
+
+build:ci --verbose_failures
+build:ci --sandbox_debug
+build:ci --spawn_strategy=standalone
+build:ci --genrule_strategy=standalone
+test:ci --test_strategy=standalone
+test:ci --test_output=errors

@@ -1,8 +1,8 @@
+load("//:common.bzl", "slug")
+load("//:gobind_library.bzl", "gobind_library")
+load("//:providers.bzl", "GoBindInfo")
+load("//platform:transitions.bzl", "go_platform_transition")
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load("@co_znly_rules_gomobile//:common.bzl", "slug")
-load("@co_znly_rules_gomobile//:gobind_library.bzl", "gobind_library")
-load("@co_znly_rules_gomobile//:providers.bzl", "GoBindInfo")
-load("@co_znly_rules_gomobile//platform:transitions.bzl", "go_platform_transition")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_path")
 
 _MODULE_MAP_TPL = """\
@@ -45,7 +45,7 @@ def _gobind_ios_artifacts_impl(ctx):
             header = depset(gobind_info.objc),
             imported_library = depset(ctx.files.binary),
             force_load_library = depset(ctx.files.binary),
-            include = depset(["."]),
+            strict_include = depset(["."]),  # TODO(tianlin): include no longer supported.
             module_map = depset([_create_module_map(ctx, gobind_info)]),
         ),
     ]
@@ -103,11 +103,29 @@ def gobind_objc(name, deps, objc_prefix, platform_type, minimum_os_version, tags
         name = gopath_name,
         mode = "link",
         include_pkg = True,
-        include_transitive = False,
-        linkmode = "c-archive",
+        include_transitive = True,
+        # linkmode = "c-archive",
         deps = deps + [
+            # For command line.
+            "@org_golang_x_mobile//cmd/gomobile:gomobile",
+            "@org_golang_x_mobile//cmd/gobind:gobind",
+            # For bind.
             "@org_golang_x_mobile//bind:go_default_library",
+            "@org_golang_x_mobile//bind/java:go_default_library",  # java is also required.
+            "@org_golang_x_mobile//bind/seq:go_default_library",
             "@org_golang_x_mobile//bind/objc:go_default_library",
+            # For other resources.
+            "@org_golang_x_mobile//asset:go_default_library",
+            "@org_golang_x_mobile//app:go_default_library",
+            "@org_golang_x_mobile//gl:go_default_library",
+            "@org_golang_x_mobile//geom:go_default_library",
+            "@org_golang_x_sys//execabs:go_default_library",
+            "@org_golang_x_tools//go/packages:go_default_library",
+            "@org_golang_x_tools//go/gcexportdata:go_default_library",
+            "@org_golang_x_xerrors//:go_default_library",
+            # Old:
+            # "@org_golang_x_mobile//bind:go_default_library",
+            # "@org_golang_x_mobile//bind/objc:go_default_library",
         ],
     )
     gobind_library(
@@ -124,35 +142,37 @@ def gobind_objc(name, deps, objc_prefix, platform_type, minimum_os_version, tags
         go_tags = tags + ["ios"],
         deps = deps,
     )
-    copts = kwargs.pop("copts", []) + [
-        "-xobjective-c",
-        "-fmodules",
-        "-fobjc-arc",
-        "-D__GOBIND_DARWIN__",
-    ]
-    go_binary(
-        name = binary_name,
-        embed = [gobind_name],
-        out = binary_name + ".a",
-        deps = deps + [
-            "@org_golang_x_mobile//bind/java:go_default_library",
-            "@org_golang_x_mobile//bind/seq:go_default_library",
-        ],
-        copts = copts,
-        pure = "off",
-        linkmode = "c-archive",
-        **kwargs
-    )
-    gobind_ios_artifacts(
-        name = objc_library_name,
-        gobind = gobind_name,
-        binary = binary_name,
-        visibility = ["//visibility:public"],
-    )
-    apple_untransition_impl(
-        name = objc_library_hdrs_name,
-        artifacts = objc_library_name,
-        platform_type = platform_type,
-        minimum_os_version = minimum_os_version,
-        visibility = ["//visibility:public"],
-    )
+    # copts = kwargs.pop("copts", []) + [
+    #     "-xobjective-c",
+    #     "-fmodules",
+    #     "-fobjc-arc",
+    #     "-D__GOBIND_DARWIN__",
+    # ]
+    # go_binary(
+    #     name = binary_name,
+    #     srcs = [],
+    #     embed = [gobind_name],
+    #     out = binary_name + ".a",
+    #     deps = deps + [
+    #         "@org_golang_x_mobile//bind/java:go_default_library",
+    #         "@org_golang_x_mobile//bind/seq:go_default_library",
+    #     ],
+    #     cgo = True,
+    #     copts = copts,
+    #     pure = "off",
+    #     linkmode = "c-archive",
+    #     **kwargs
+    # )
+    # gobind_ios_artifacts(
+    #     name = objc_library_name,
+    #     gobind = gobind_name,
+    #     binary = binary_name,
+    #     visibility = ["//visibility:public"],
+    # )
+    # apple_untransition_impl(
+    #     name = objc_library_hdrs_name,
+    #     artifacts = objc_library_name,
+    #     platform_type = platform_type,
+    #     minimum_os_version = minimum_os_version,
+    #     visibility = ["//visibility:public"],
+    # )

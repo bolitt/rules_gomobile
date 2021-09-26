@@ -1,0 +1,28 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "objc",
+    srcs = [
+        "doc.go",
+        "ref.h",
+        "seq_darwin.h",
+    ],
+    data = [
+        "seq_darwin.go.support",
+        "seq_darwin.m.support",
+    ],
+    importpath = "golang.org/x/mobile/bind/objc",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "go_default_library",
+    actual = ":objc",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "objc_test",
+    srcs = ["seq_test.go"],
+    embed = [":objc"],
+)

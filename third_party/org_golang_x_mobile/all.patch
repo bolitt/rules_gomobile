@@ -1,0 +1,38 @@
+--- bind/BUILD.bazel	2021-09-27 00:10:08.000000000 +0800
++++ bind/BUILD.bazel	2021-09-27 00:01:48.000000000 +0800
+@@ -13,6 +13,9 @@
+         "printer.go",
+         "types.go",
+     ],
++    data = [
++        "seq.go.support",
++    ],
+     importpath = "golang.org/x/mobile/bind",
+     visibility = ["//visibility:public"],
+     deps = [
+--- bind/java/BUILD.bazel	2021-09-27 00:01:16.000000000 +0800
++++ bind/java/BUILD.bazel	2021-09-27 00:01:08.000000000 +0800
+@@ -23,6 +23,10 @@
+         ],
+         "//conditions:default": [],
+     }),
++    data = glob([
++        "*.java",
++        "*.support",
++    ]),
+ )
+ 
+ alias(
+--- bind/objc/BUILD.bazel	2021-09-27 00:10:15.000000000 +0800
++++ bind/objc/BUILD.bazel	2021-09-27 00:00:38.000000000 +0800
+@@ -7,6 +7,10 @@
+         "ref.h",
+         "seq_darwin.h",
+     ],
++    data = [
++        "seq_darwin.go.support",
++        "seq_darwin.m.support",
++    ],
+     importpath = "golang.org/x/mobile/bind/objc",
+     visibility = ["//visibility:public"],
+ )

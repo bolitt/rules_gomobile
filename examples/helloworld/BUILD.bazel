@@ -1,12 +1,18 @@
+# See all details:
+# bazel query --output build //examples/helloworld/...
+
+load("//:gobind.bzl", "gobind")
 load("@build_bazel_rules_apple//apple:ios.bzl", "ios_static_framework")
-load("@co_znly_rules_gomobile//:gobind.bzl", "gobind")
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
+# load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@gmaven_rules//:defs.bzl", "gmaven_artifact")
+
+package(default_visibility = ["//visibility:public"])
 
 go_library(
     name = "go_default_library",
     srcs = ["helloworld.go"],
-    importpath = "github.com/znly/rules_gomobile/helloworld",
-    visibility = ["//visibility:public"],
+    importpath = "github.com/znly/rules_gomobile/examples/helloworld",
 )
 
 gobind(
@@ -24,24 +30,23 @@ android_binary(
     manifest = "AndroidManifest.xml",
     multidex = "native",
     resource_files = glob(["res/**"]),
-    visibility = ["//visibility:public"],
     deps = [
         ":HelloLib.android_library",
-        "@android_deps//:com_android_support_appcompat_v7",
-        "@android_deps//:com_android_support_constraint_constraint_layout",
-        "@android_deps//:com_android_support_support_compat",
+        gmaven_artifact("com.android.support:appcompat-v7:aar:27.1.1"),
+        gmaven_artifact("com.android.support:support-compat:aar:27.1.1"),
+        gmaven_artifact("com.android.support.constraint:constraint-layout:aar:1.1.2"),
     ],
 
 )
 
-ios_static_framework(
-    name = "HelloLib.framework",
-    hdrs = [":HelloLib.objc.hdrs"],
-    bundle_name = "HelloLib",
-    families = [
-        "iphone",
-        "ipad",
-    ],
-    minimum_os_version = "10.0",
-    deps = [":HelloLib.objc"],
-)
+# ios_static_framework(
+#     name = "HelloLib.framework",
+#     hdrs = [":HelloLib.objc.hdrs"],
+#     bundle_name = "HelloLib",
+#     families = [
+#         "iphone",
+#         "ipad",
+#     ],
+#     minimum_os_version = "10.0",
+#     deps = [":HelloLib.objc"],
+# )

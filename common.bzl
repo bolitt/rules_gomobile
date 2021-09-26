@@ -10,13 +10,32 @@ def pkg_short(importpath):
 def slug(*args, token = "."):
     return token.join(args)
 
-def run_ex(ctx, executable, env = None, tools = None, **kwargs):
+def run_ex(ctx, executable, gomobile, gobind, env = None, tools = None, **kwargs):
+    """Runs executable to generate."""
+    if not env:
+        env = {}
+
     env = env or {}
     tools = tools or []
-    exports = " && ".join(["export %s=\"%s\"" % (k, v) for k, v in env.items()])
-    command = exports + " && " + executable.path + " $@"
+    command = " && ".join(
+        ["export %s=\"%s\"" % (k, v) for k, v in env.items()] + 
+        [executable.path + " $@"]
+    )
+    # command = exports + " && " + 
+    # return ctx.actions.run_shell(
+    #     command = command,
+    #     tools = tools + [executable],
+    #     **kwargs
+    # )
+    new_env = {
+        str(k): str(v)
+        for k, v in env.items()
+    }
+    # print("kwargs: ", kwargs)
+
     return ctx.actions.run_shell(
         command = command,
         tools = tools + [executable],
+        env = new_env,
         **kwargs
     )
