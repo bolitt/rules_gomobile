@@ -10,7 +10,7 @@ def pkg_short(importpath):
 def slug(*args, token = "."):
     return token.join(args)
 
-def run_ex(ctx, executable, gomobile, gobind, env = None, tools = None, **kwargs):
+def run_executable(ctx, executable, gomobile, env = None, tools = None, **kwargs):
     """Runs executable to generate."""
     if not env:
         env = {}

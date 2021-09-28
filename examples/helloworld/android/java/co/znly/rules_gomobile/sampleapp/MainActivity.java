@@ -13,12 +13,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import co.znly.helloworld.Helloworld;
+// import co.znly.helloworld.Helloworld;
+import helloworld.Helloworld;
+
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "SampleApp::MainActivity";
     private Button mButton;
     private ViewGroup mLayout;
-    private static final String TAG = "SampleApp::MainActivity";
+    private int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +34,10 @@ public class MainActivity extends AppCompatActivity {
 
         mButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Helloworld.hello("golang");
+                String input = String.format("golang[%d]", counter);
+                String ret = Helloworld.hello(input);
+                counter ++;
+                mButton.setText(String.format("Return: %s. Counter: %d", ret, counter));
             }
         });
     }

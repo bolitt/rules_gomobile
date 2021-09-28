@@ -1,6 +1,6 @@
-load("//:common.bzl", "slug")
-load("//:gobind_library.bzl", "gobind_library")
-load("//:providers.bzl", "GoBindInfo")
+load("//rule_mobile:common.bzl", "slug")
+load("//rule_mobile:gobind_library.bzl", "gobind_library")
+load("//rule_mobile:providers.bzl", "GoBindInfo")
 load("//platform:transitions.bzl", "go_platform_transition")
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_path")
@@ -93,8 +93,8 @@ apple_untransition_impl = rule(
 
 def gobind_objc(name, gopath_name, deps, objc_prefix, platform_type, minimum_os_version, tags, **kwargs):
     """Generates gobind for objc."""
+    gobind_name = name + "@gobind.objc"
     # gopath_name = slug(name, "objc", "gopath")
-    gobind_name = slug(name, "gobind", "objc")
     # binary_name = slug(name, "objc", "binary")
     # artifacts_name = slug(name, "objc", "artifacts")
     # objc_library_name = slug(name, "objc")
@@ -102,6 +102,7 @@ def gobind_objc(name, gopath_name, deps, objc_prefix, platform_type, minimum_os_
 
     gobind_library(
         name = gobind_name,
+        original_name = name,
         go_path = gopath_name,
         lang = ["go", "objc"],
         objc_prefix = objc_prefix,

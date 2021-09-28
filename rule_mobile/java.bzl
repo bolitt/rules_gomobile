@@ -1,6 +1,6 @@
-load("//:common.bzl", "slug")
-load("//:gobind_library.bzl", "gobind_library")
-load("//:providers.bzl", "GoBindInfo")
+load("//rule_mobile:common.bzl", "slug")
+load("//rule_mobile:gobind_library.bzl", "gobind_library")
+load("//rule_mobile:providers.bzl", "GoBindInfo")
 load("//platform:transitions.bzl", "go_platform_transition")
 load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "find_cpp_toolchain")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_path")
@@ -67,7 +67,7 @@ gobind_android_artifacts = rule(
 def gobind_java(name, gopath_name, deps, java_package, tags, **kwargs):
     """Gobind library with java and aar."""
     # gopath_name = slug(name, "java", "gopath")
-    gobind_name = slug(name, "gobind", "java")
+    gobind_name = name + "@gobind.java"
     # binary_name = slug(name, "java", "binary")
     # artifacts_name = slug(name, "java", "artifacts")
     # cc_library_name = slug(name, "java", "cc")
@@ -76,6 +76,7 @@ def gobind_java(name, gopath_name, deps, java_package, tags, **kwargs):
 
     gobind_library(
         name = gobind_name,
+        original_name = name,
         go_path = gopath_name,
         lang = ["go", "java"],
         java_package = java_package,

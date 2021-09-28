@@ -69,7 +69,7 @@ def go_repositories():
         sum = "h1:CyFUjc175y/mbMjxe+WdqI72jguLyjQChKCDe9mfTvg=",
         version = "v0.0.0-20210924032853-1c027f395ef7",
         patches = [
-            "@co_znly_rules_gomobile//third_party/org_golang_x_mobile:all.patch",
+            "//third_party/org_golang_x_mobile:all.patch",
         ],
     )
     go_repository(

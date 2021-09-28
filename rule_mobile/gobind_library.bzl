@@ -1,9 +1,28 @@
-load("@co_znly_rules_gomobile//:common.bzl", "genpath", "pkg_short", "run_ex")
-load("@co_znly_rules_gomobile//:providers.bzl", "GoBindInfo")
+load("//rule_mobile:common.bzl", "genpath", "pkg_short", "run_executable")
+load("//rule_mobile:providers.bzl", "GoBindInfo")
 load("@io_bazel_rules_go//go:def.bzl", "GoLibrary", "GoPath", "go_context", "GoSource")
 
 def _java_classname(pkg):
     return "/".join(pkg.split("."))
+
+def _gen_new_files(label_name, original_name, java_package, objc_prefix):
+    # Add by tianlin.
+    pkg_short_ = pkg_short(original_name)
+    pkg_short_title = pkg_short_.title()
+    return struct(
+        android_aar = "/".join([
+            label_name,
+            original_name + ".aar",
+        ]),
+        android_sources_jar = "/".join([
+            label_name,
+            original_name + "-sources.jar",
+        ]),
+        xcframework = "/".join([
+            label_name,
+            original_name + ".xcframework",
+        ])
+    )
 
 def _gen_filenames(importpath, java_package, objc_prefix):
     pkg_short_ = pkg_short(importpath)
@@ -118,11 +137,7 @@ def _gobind_library_impl(ctx):
     my_go_cache = "%s/../caches/go-build" % my_go_root
     my_go_tool_dir = "%s/pkg/tool/darwin_amd64" % my_go_root  # compile_path = tool_path + "/compile"
 
-    tools = [
-        ctx.executable._gomobile,
-        ctx.executable._gobind,
-        ctx.executable._zipper,
-    ] + ctx.files._go_tools
+    tools = [ctx.executable._gomobile] + ctx.files._go_tools
 
     # Find bins to execute.
     my_sys_path = ":".join(
@@ -134,25 +149,30 @@ def _gobind_library_impl(ctx):
         ] + ctx.attr.system_path
     )
 
+    java_label = Label("@bazel_tools//tools/jdk:current_host_java_runtime")
+    print("Genfiles: %s\n" % ctx.genfiles_dir.path)
+    print("Label: %s\n" % java_label)
+    print("WorkspaceRoot: %s, Package: %s, Name: %s\n" % (java_label.workspace_root, java_label.package, java_label.name))
+
     out_gobind = None
     lang_specific_env = {
         "JAVA_HOME": "/Users/tianlin/Downloads/dev/java/jdk-16.0.2.jdk/Contents/Home",
     }
     bind_target = ""
+    gen_files = _gen_new_files(ctx.label.name, ctx.attr.original_name, ctx.attr.java_package, ctx.attr.objc_prefix)
     if _is_java(ctx):
         # See usage: gomobile bind --help
         # https://github.com/golang/go/wiki/Mobile
         bind_target = "android"
-        jar_file = "%s-sources.jar" % ctx.label.name
-        aar_file = "%s.aar" % ctx.label.name
-        outputs.java.append(go.actions.declare_file(jar_file))
-        outputs.java.append(go.actions.declare_file(aar_file))
+
+        outputs.java.append(go.actions.declare_file(gen_files.android_aar))
+        outputs.java.append(go.actions.declare_file(gen_files.android_sources_jar))
 
         # Real out_gobind path.
         out_gobind = "/".join([
             ctx.genfiles_dir.path,
             ctx.label.package,
-            aar_file,
+            gen_files.android_aar,
         ])
 
         # Android envs:
@@ -170,18 +190,14 @@ def _gobind_library_impl(ctx):
 
     if _is_objc(ctx):
         bind_target = "ios"
-        xcframework_folder = "%s.xcframework" % ctx.label.name
-        outputs.objc.append(go.actions.declare_directory(xcframework_folder))
+        outputs.objc.append(go.actions.declare_directory(gen_files.xcframework))
 
-        # Real out_gobind path.
+        # Real out_gobind path (xcframework folder).
         out_gobind = "/".join([
             ctx.genfiles_dir.path,
             ctx.label.package,
-            xcframework_folder,
+            gen_files.xcframework,
         ])
-
-    # print('tools: \n', tools)
-    # print('ctx.files._go_tools:\n', ctx.files._go_tools)
 
     # Update env.
     env = dict(go.env)
@@ -204,8 +220,6 @@ def _gobind_library_impl(ctx):
 
     # arguments = [
     #     "-gomobile=" + ctx.executable._gomobile.path,
-    #     "-gobind=" + ctx.executable._gobind.path,
-    #     "-zipper=" + ctx.executable._zipper.path,
     #     "-outdir=" + outdir,
     #     "-outjar=" + srcjar_path,
     #     "--",
@@ -225,13 +239,12 @@ def _gobind_library_impl(ctx):
         "-target=%s" % bind_target,
     ] + packages
 
-    run_ex(
+    run_executable(
         ctx,
         inputs = [go.go] + ctx.files.go_path,
         outputs = outputs.go + outputs.objc + outputs.java,
         mnemonic = mnemonic,
         gomobile = ctx.executable._gomobile,
-        gobind = ctx.executable._gobind,
         executable = ctx.executable._gobind_wrapper,
         env = env,
         arguments = arguments,
@@ -264,9 +277,13 @@ gobind_library = rule(
         "copts": attr.string_list(),  # TODO(tianlin): Didn't used.
         "go_path": attr.label(providers = [GoPath]),
         "go_tags": attr.string_list(),  # TODO(tianlin): Didn't used.
+        "original_name": attr.string(
+            mandatory = True,
+            doc = "Original label name",
+        ),
         "java_package": attr.string(default = ""),  # TODO(tianlin): Didn't used.
         "lang": attr.string_list(mandatory = True),
-        "objc_prefix": attr.string(default = ""),
+        "objc_prefix": attr.string(default = ""),  # TODO(tianlin): Didn't used.
         "deps": attr.label_list(
             providers = [GoLibrary, GoSource],
         ),
@@ -276,36 +293,23 @@ gobind_library = rule(
                 "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin",
             ],
         ),
+        "_gomobile": attr.label(
+            executable = True,
+            cfg = "host",
+            default = "@org_golang_x_mobile//cmd/gomobile:gomobile",
+        ),
+        "_gobind_wrapper": attr.label(
+            executable = True,
+            cfg = "host",
+            default = "//rule_mobile:gobind_wrapper",
+        ),
         "_android_tools": attr.label_list(
             default = [
                 "@androidsdk//:files", "@androidsdk//:sdk", "@androidndk//:files",
             ]
         ),
         "_go_tools": attr.label_list(
-            default = [
-                "@go_sdk//:files", 
-                "@org_golang_x_xerrors//:go_default_library",
-            ]
-        ),
-        "_gomobile": attr.label(
-            executable = True,
-            cfg = "host",
-            default = "@org_golang_x_mobile//cmd/gomobile:gomobile",
-        ),
-        "_gobind": attr.label(
-            executable = True,
-            cfg = "host",
-            default = "@org_golang_x_mobile//cmd/gobind:gobind",
-        ),
-        "_gobind_wrapper": attr.label(
-            executable = True,
-            cfg = "host",
-            default = "@co_znly_rules_gomobile//:gobind_wrapper",
-        ),
-        "_zipper": attr.label(
-            default = "@bazel_tools//tools/zip:zipper",
-            cfg = "host",
-            executable = True,
+            default = ["@go_sdk//:files"]
         ),
     },
     output_to_genfiles = True,
