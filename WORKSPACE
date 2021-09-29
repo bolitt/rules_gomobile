@@ -1,7 +1,4 @@
-# export ANDROID_HOME="$HOME/Android/Sdk"
-# export ANDROID_NDK_HOME="$HOME/Android/Sdk/ndk-bundle/android-ndk-r21e"
-
-workspace(name = "co_znly_rules_gomobile")
+workspace(name = "bolitt_rules_gomobile")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -99,7 +96,7 @@ http_archive(
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
-
+    
 # Google Maven Repository
 _GMAVEN_TAG = "20181212-2"
 

@@ -13,8 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-// import co.znly.helloworld.Helloworld;
-import helloworld.Helloworld;
+import co.znly.helloworld.Helloworld;
 
 
 public class MainActivity extends AppCompatActivity {

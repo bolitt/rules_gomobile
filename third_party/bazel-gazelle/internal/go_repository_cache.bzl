@@ -58,7 +58,7 @@ def _go_repository_cache_impl(ctx):
         "GOROOT": go_root,
         "GOPATH": go_path,
         "GOCACHE": go_cache,
-        "GOPROXY": "https://goproxy.cn,direct",  # Tian Lin: In China proxy
+        "GOPROXY": "https://goproxy.cn,direct",
     }
     for key, value in ctx.attr.go_env.items():
         if key in cache_env:
