@@ -2,7 +2,7 @@
 gomobile bind rules for Bazel.
 
 # Environment.
-To build Android app, we need pre-install Android, and set `ANDROID_HOME` and `ANDROID_NDK_HOME`.
+To build Android app, we need the pre-installed Android, and set `ANDROID_HOME` and `ANDROID_NDK_HOME`.
 
 For example,
 
@@ -17,7 +17,8 @@ We also use the local JDK which is used by `bazel` too. `JAVA_HOME` is detected 
 
 # Build.
 
-To build Gobind for Android and iOS,
+To build Gobind for Android (`<Lib>@java`) and iOS (`<Lib>@objc`), and then export respective packages: 
+aar (`<Lib>_aar_import`) and xcframwork (`<Lib>@objc@xcframework`).
 
 ```bash
 # To build all binding files.

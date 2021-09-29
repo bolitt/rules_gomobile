@@ -56,14 +56,16 @@ def _gobind_library_impl(ctx):
         objc = [],
     )
     
+
     # Go envs:
     my_go_root = "${PWD}/%s" % go.root
     my_go_path = "${PWD}/%s" % gopath.gopath_file.dirname
     my_go_cache = "%s/../caches/go-build" % my_go_root
     my_go_tool_dir = "%s/pkg/tool/darwin_amd64" % my_go_root  # compile_path = tool_path + "/compile"
 
-    tools = [ctx.executable._gomobile] + ctx.files._go_tools + ctx.files.jdk
-    jdk_path = Label("@local_jdk").workspace_root
+    tools = [ctx.executable._gomobile] + ctx.files._go_tools + ctx.files._jdk
+    java_runtime = ctx.attr._jdk[java_common.JavaRuntimeInfo]
+    jdk_path = java_runtime.java_home
 
     # Find bins to execute.
     my_sys_path = ":".join(
@@ -152,13 +154,13 @@ def _gobind_library_impl(ctx):
     # Run executable to generate target bindings.
     run_executable(
         ctx,
-        inputs = [go.go] + ctx.files.go_path + ctx.files.jdk,
+        inputs = [go.go] + ctx.files.go_path + ctx.files._jdk,
         outputs = outputs.go + outputs.objc + outputs.java,
         mnemonic = mnemonic,
         gomobile = ctx.executable._gomobile,
         executable = ctx.executable._gobind_wrapper,
-        env = env,
         jdk_path = jdk_path,
+        env = env,
         arguments = arguments,
         tools = tools,
     )
@@ -207,13 +209,10 @@ gobind_library = rule(
             doc = "Additional system path to search binaries",
             default = LINUX_UNIX_BINS,
         ),
-        "jdk": attr.label_list(
+        "_jdk": attr.label(
+            default = Label("@bazel_tools//tools/jdk:current_java_runtime"),
             cfg = "host",
-            default = [
-                "@local_jdk//:jdk",
-                "@bazel_tools//tools/jdk:jdk",  # Point to @local_jdk//:jdk"
-                "@bazel_tools//tools/jdk:current_java_runtime",
-            ]
+            providers = [java_common.JavaRuntimeInfo],
         ),
         "_gomobile": attr.label(
             executable = True,

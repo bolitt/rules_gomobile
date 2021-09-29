@@ -14,10 +14,11 @@ def run_executable(ctx, executable, gomobile, env = None, tools = None, jdk_path
     exports = [
         "export {}=\"{}\"".format(k, v) for k, v in env.items()
     ] + [
-        # Expose JAVA_HOME from "${word_dir}/external/local_jdk".
+        # Expose JAVA_HOME from "${word_dir}/external/remotejdk11_macos" (host) or "${work_dir}/external/local_jdk" (local)
         # Binary java is at "${JAVA_HOME}/bin/java".
         "export JAVA_HOME=\"`pwd`/{}\"".format(jdk_path)
     ]
+
     checks = [
         # Checks whether java exists.
         """ if [[ ! -e "${JAVA_HOME}/bin/java" ]]; then echo "java not found: ${JAVA_HOME}/bin/java"; exit 1; fi """,

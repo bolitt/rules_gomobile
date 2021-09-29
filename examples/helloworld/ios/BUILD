@@ -1,5 +1,3 @@
-load("@bazelbuild/rules_apple/apple.bzl", "ios_static_framework")
-
 package(default_visibility = ["//visibility:public"])
 
 # TODO(bolitt): To add ios examples in future.
