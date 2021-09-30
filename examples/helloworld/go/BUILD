@@ -1,7 +1,7 @@
 # See all details:
 # bazel query --output build //examples/helloworld/...
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
-load("//tools/rule_mobile:gobind.bzl", "gobind")
+load("//tools:defs.bzl", "gobind")
 
 package(default_visibility = ["//visibility:public"])
 

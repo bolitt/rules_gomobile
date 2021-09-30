@@ -1,7 +1,7 @@
 # rules_gomobile
 gomobile bind rules for Bazel.
 
-# Environment.
+# Environment
 To build Android app, we need the pre-installed Android, and set `ANDROID_HOME` and `ANDROID_NDK_HOME`.
 
 For example,
@@ -15,7 +15,7 @@ If you want one command to install Android SDK and NDK, please check this standa
 
 We also use the local JDK which is used by `bazel` too. `JAVA_HOME` is detected automatically, if you can run `bazel` directly.
 
-# Build.
+# Build: Examples
 
 To build Gobind for Android (`<Lib>@java`) and iOS (`<Lib>@objc`), and then export respective packages: 
 aar (`<Lib>_aar_import`) and xcframwork (`<Lib>@objc@xcframework`).
@@ -56,6 +56,6 @@ The code is ported from https://github.com/znly/rules_gomobile. Since the repo h
 
 Now the repo has been refactored at large scale.
 
-- Changed the Go generator from command `gobind` to [`gomobile`](https://golang.org/wiki/Mobile) for Android/iOS. (See pkg: https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile for details)
-- Used `gazelle` to manage Go packages.
+- Changed the Go generator from command [`gobind`](https://pkg.go.dev/golang.org/x/mobile/cmd/gobind) to [`gomobile`](https://golang.org/wiki/Mobile) for Android/iOS. (See pkg: https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile for details)
+- Used [`gazelle`](https://github.com/bazelbuild/bazel-gazelle) to manage Go packages.
 - Simplified rules.
