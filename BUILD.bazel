@@ -14,3 +14,19 @@ package(default_visibility = ["//visibility:public"])
 #
 # gazelle:prefix github.com/znly/rules_gomobile
 gazelle(name = "gazelle")
+
+
+# Add go_repository:
+# go_repository(
+#     name = "org_golang_x_mobile",
+#     importpath = "golang.org/x/mobile",
+#     sum = "h1:CyFUjc175y/mbMjxe+WdqI72jguLyjQChKCDe9mfTvg=",
+#     version = "v0.0.0-20210924032853-1c027f395ef7",
+#     patches = [
+#         "@bolitt_rules_gomobile//third_party/org_golang_x_mobile:all.patch",
+#     ],
+# )
+alias(
+    name = "x_mobile_patch",
+    actual = "//third_party/org_golang_x_mobile:all.patch",
+)

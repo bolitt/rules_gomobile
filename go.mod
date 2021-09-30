@@ -2,7 +2,7 @@
 //   bazel run :gazelle -- update-repos -from_file=go.mod -to_macro=repositories.bzl%go_repositories
 // It will update `repositories.bzl`
 
-module github.com/rules_gomobile
+module github.com/bolitt/rules_gomobile
 
 go 1.17
 

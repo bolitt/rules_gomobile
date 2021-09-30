@@ -52,7 +52,7 @@ adb install bazel-bin/examples/helloworld/android/app.apk
 
 # Acknowledgment
 
-The code is ported from https://github.com/znly/rules_gomobile. Since the repo hasn't been updated for 2 years and used old Golang and bazel (1.2.1) versions, we couldn't make it work initially. 
+The code is ported from https://github.com/znly/rules_gomobile. Since the repo hasn't been updated for 2 years and used old Golang and bazel (1.2.1) versions, we couldn't make it work initially.
 
 Now the repo has been refactored at large scale.
 

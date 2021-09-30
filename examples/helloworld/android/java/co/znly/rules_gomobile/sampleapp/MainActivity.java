@@ -13,7 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import co.znly.helloworld.Helloworld;
+// Generated class: concatenated org.bolitt + helloworld.Helloworld.
+import org.bolitt.helloworld.Helloworld;
 
 
 public class MainActivity extends AppCompatActivity {

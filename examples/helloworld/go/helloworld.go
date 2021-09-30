@@ -3,7 +3,7 @@ package helloworld
 import (
 	"fmt"
 
-	"github.com/example/project/examples/helloworld/util"
+	"github.com/bolitt/rules_gomobile/examples/helloworld/util"
 )
 
 //export Hello

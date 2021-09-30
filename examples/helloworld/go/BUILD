@@ -8,7 +8,7 @@ package(default_visibility = ["//visibility:public"])
 go_library(
     name = "helloworld",
     srcs = ["helloworld.go"],
-    importpath = "github.com/example/project/examples/helloworld",
+    importpath = "github.com/bolitt/rules_gomobile/examples/helloworld",
     deps = [
         # Illustate that the exported library can depend on other libraries.
         ":util",
@@ -18,7 +18,7 @@ go_library(
 go_library(
     name = "util",
     srcs = ["util.go"],
-    importpath = "github.com/example/project/examples/helloworld/util",
+    importpath = "github.com/bolitt/rules_gomobile/examples/helloworld/util",
 )
 
 # Generated targets:
@@ -31,6 +31,6 @@ go_library(
 # //examples/helloworld/go:HelloLib@objc
 gobind(
     name = "HelloLib",
-    java_package = "co.znly",
+    java_package = "org.bolitt",
     deps = [":helloworld"],
 )
